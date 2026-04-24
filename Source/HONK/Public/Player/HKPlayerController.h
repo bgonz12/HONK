@@ -17,9 +17,14 @@ class HONK_API AHKPlayerController : public APlayerController
 	GENERATED_BODY()
 	
 public:
+	virtual void BeginPlayingState() override;
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "HKPlayerController")
+	void BP_BeginPlayingState();
+
 	virtual void OnRep_Pawn() override;
 
-	UFUNCTION(BlueprintImplementableEvent, Category = "Pawn")
+	UFUNCTION(BlueprintImplementableEvent, Category = "HKPlayerController|Pawn")
 	void BP_OnRep_Pawn();
 
 public:
