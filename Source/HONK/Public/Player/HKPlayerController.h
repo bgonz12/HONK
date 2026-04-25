@@ -23,9 +23,12 @@ public:
 	void BP_BeginPlayingState();
 
 	virtual void OnRep_Pawn() override;
-
 	UFUNCTION(BlueprintImplementableEvent, Category = "HKPlayerController|Pawn")
 	void BP_OnRep_Pawn();
+
+	virtual void OnRep_PlayerState() override;
+	UFUNCTION(BlueprintImplementableEvent, Category = "HKPlayerController|Pawn")
+	void BP_OnRep_PlayerState();
 
 public:
 	UPROPERTY(BlueprintAssignable)
