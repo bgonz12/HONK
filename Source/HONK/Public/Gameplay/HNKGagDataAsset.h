@@ -4,11 +4,11 @@
 #include "CoreMinimal.h"
 #include "Engine/DataAsset.h"
 
-// HONK INcludes
-#include "HKGagDataAsset.generated.h"
+// HONK Includes
+#include "HNKGagDataAsset.generated.h"
 
 UCLASS(BlueprintType)
-class HONK_API UHKGagDataAsset : public UDataAsset
+class HONK_API UHNKGagDataAsset : public UDataAsset
 {
 	GENERATED_BODY()
 	

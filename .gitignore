@@ -73,3 +73,11 @@ Plugins/**/Intermediate/*
 
 # Cache files for the editor to use
 DerivedDataCache/*
+
+# JetBrains Rider / IntelliJ
+.idea/
+*.sln.iml
+*.suo
+*.user
+*.userosscache
+*.sln.doccache
