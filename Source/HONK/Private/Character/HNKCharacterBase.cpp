@@ -64,10 +64,20 @@ UAbilitySystemComponent* AHNKCharacterBase::GetAbilitySystemComponent() const
 void AHNKCharacterBase::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
+	
+	if (UAbilitySystemComponent* ASC = GetAbilitySystemComponent())
+	{
+		ASC->InitAbilityActorInfo(GetPlayerState(), this);
+	}
 }
 
 void AHNKCharacterBase::OnRep_PlayerState()
 {
 	Super::OnRep_PlayerState();
+	
+	if (UAbilitySystemComponent* ASC = GetAbilitySystemComponent())
+	{
+		ASC->InitAbilityActorInfo(GetPlayerState(), this);
+	}
 }
 
