@@ -2,6 +2,7 @@
 
 // Engine Includes
 #include "CoreMinimal.h"
+#include "AbilitySystemInterface.h"
 #include "GameFramework/PlayerController.h"
 
 // HONK Includes
@@ -10,11 +11,14 @@
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FHNK_OnRep_Pawn_Signature, const AHNKPlayerController*, HNKPlayerController, const APawn*, Pawn);
 
 UCLASS()
-class HONK_API AHNKPlayerController : public APlayerController
+class HONK_API AHNKPlayerController : public APlayerController, public IAbilitySystemInterface
 {
 	GENERATED_BODY()
 	
 public:
+	/** IAbilitySystemInterface */
+	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
+	
 	virtual void BeginPlayingState() override;
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "HNKPlayerController")

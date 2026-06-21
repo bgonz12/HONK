@@ -1,8 +1,19 @@
 // HONK Includes
 #include "Player/HNKPlayerController.h"
-
-#include "AbilitySystemComponent.h"
 #include "Player/HNKPlayerStateBase.h"
+
+// Engine Includes
+#include "AbilitySystemGlobals.h"
+
+UAbilitySystemComponent* AHNKPlayerController::GetAbilitySystemComponent() const
+{
+	if (APlayerState* MyPlayerState = GetPlayerState<APlayerState>())
+	{
+		return UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(MyPlayerState);
+	}
+	
+	return nullptr;
+}
 
 void AHNKPlayerController::BeginPlayingState()
 {
@@ -22,12 +33,4 @@ void AHNKPlayerController::OnRep_PlayerState()
 {
 	Super::OnRep_PlayerState();
 	BP_OnRep_PlayerState();
-	
-	if (AHNKPlayerStateBase* MyPlayerState = GetPlayerState<AHNKPlayerStateBase>())
-	{
-		if (UAbilitySystemComponent* MyASC = MyPlayerState->GetAbilitySystemComponent())
-		{
-			MyASC->InitAbilityActorInfo(MyPlayerState, GetPawn());
-		}
-	}
 }

@@ -1,14 +1,12 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
 
+// Engine Includes
 #include "CoreMinimal.h"
 #include "Subsystems/GameInstanceSubsystem.h"
+
+// HONK Includes
 #include "HNKSaveGameSubsystem.generated.h"
 
-/**
- * 
- */
 UCLASS()
 class HONK_API UHNKSaveGameSubsystem : public UGameInstanceSubsystem
 {

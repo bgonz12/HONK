@@ -7,6 +7,7 @@
 // Engine Includes
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Gameplay/HNKGameplayStatics.h"
 #include "Player/HNKPlayerStateBase.h"
 
 AHNKCharacterBase::AHNKCharacterBase()
@@ -61,23 +62,54 @@ UAbilitySystemComponent* AHNKCharacterBase::GetAbilitySystemComponent() const
 	return nullptr;
 }
 
+void AHNKCharacterBase::InitializeAttributes()
+{
+	UAbilitySystemComponent* ASC = GetAbilitySystemComponent();
+	if (!IsValid(ASC))
+	{
+		return;
+	}
+
+	if (!DefaultAttributes)
+	{
+		UE_LOG(LogTemp, Error, TEXT("%s() Missing DefaultAttributes for %s. Please fill in the character's Blueprint."), *FString(__FUNCTION__), *GetName());
+		return;
+	}
+
+	// Can run on Server and Client
+	FGameplayEffectContextHandle EffectContext = ASC->MakeEffectContext();
+	EffectContext.AddSourceObject(this);
+
+	FGameplayEffectSpecHandle NewHandle = ASC->MakeOutgoingSpec(DefaultAttributes, 0, EffectContext);
+	if (NewHandle.IsValid())
+	{
+		FActiveGameplayEffectHandle ActiveGEHandle = ASC->ApplyGameplayEffectSpecToSelf(*NewHandle.Data.Get());
+	}
+}
+
 void AHNKCharacterBase::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
 	
-	if (UAbilitySystemComponent* ASC = GetAbilitySystemComponent())
-	{
-		ASC->InitAbilityActorInfo(GetPlayerState(), this);
-	}
+	HandlePlayerStateReady();
 }
 
 void AHNKCharacterBase::OnRep_PlayerState()
 {
 	Super::OnRep_PlayerState();
-	
-	if (UAbilitySystemComponent* ASC = GetAbilitySystemComponent())
+
+	HandlePlayerStateReady();
+}
+
+void AHNKCharacterBase::HandlePlayerStateReady()
+{
+	if (HasAuthority())
 	{
-		ASC->InitAbilityActorInfo(GetPlayerState(), this);
+		if (AHNKPlayerStateBase* MyPlayerState = GetPlayerState<AHNKPlayerStateBase>())
+		{
+			MyPlayerState->InitAbilitySystem();
+			InitializeAttributes();
+		}
 	}
 }
 
