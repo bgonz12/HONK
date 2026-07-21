@@ -10,8 +10,10 @@
 			"LoadingPhase": "Default",
 			"AdditionalDependencies": [
 				"Engine",
+				"ChaosMover",
+				"CoreUObject",
 				"GameplayAbilities",
-				"CoreUObject"
+				"Mover"
 			]
 		}
 	],
@@ -38,6 +40,14 @@
 		},
 		{
 			"Name": "GameplayAbilities",
+			"Enabled": true
+		},
+		{
+			"Name": "Mover",
+			"Enabled": true
+		},
+		{
+			"Name": "MoverExamples",
 			"Enabled": true
 		}
 	]

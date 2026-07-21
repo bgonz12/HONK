@@ -9,15 +9,19 @@ public class HONK : ModuleRules
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 	
 		PublicDependencyModuleNames.AddRange(new string[] {
+			"ChaosMover",
 			"Core",
 			"CoreUObject",
 			"Engine",
+			"EnhancedInput",
 			"GameplayAbilities",
 			"GameplayTasks",
 			"GameplayTags",
-			"InputCore" });
+			"InputCore",
+			"Mover"
+		});
 
-		PrivateDependencyModuleNames.AddRange(new string[] {  });
+		PrivateDependencyModuleNames.AddRange(new string[] { });
 
 		// Uncomment if you are using Slate UI
 		// PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore" });
