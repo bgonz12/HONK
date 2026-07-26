@@ -8,11 +8,16 @@
 #include "Camera/CameraComponent.h"
 #include "DefaultMovementSet/CharacterMoverComponent.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "GAS/Attribute/HNKDamageableAttributeSet.h"
 #include "Pawn/HNKCharacterMoverComponent.h"
 #include "Player/HNKPlayerStateBase.h"
 
 AHNKPlayerPawn::AHNKPlayerPawn()
 {
+	AbilitySystemComponent = CreateDefaultSubobject<UAbilitySystemComponent>(TEXT("AbilitySystemComponent"));
+	AbilitySystemComponent->SetIsReplicated(true);
+	AbilitySystemComponent->SetReplicationMode(AscReplicationMode);
+	
 	SpringArmComponent = CreateDefaultSubobject<USpringArmComponent>(FName("SpringArmComponent"));
 	SpringArmComponent->ProbeSize = 15.f;
 	SpringArmComponent->bUsePawnControlRotation = true;
@@ -20,6 +25,20 @@ AHNKPlayerPawn::AHNKPlayerPawn()
 	
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>(FName("CameraComponent"));
 	CameraComponent->SetupAttachment(SpringArmComponent);
+	
+	// Setup attribute sets
+	DamageableAttributeSet = CreateDefaultSubobject<UHNKDamageableAttributeSet>(TEXT("DamageableAttributeSet"));
+}
+
+void AHNKPlayerPawn::BeginPlay()
+{
+	Super::BeginPlay();
+	
+	if (HasAuthority())
+	{
+		InitAbilitySystem();
+		InitAttributes();
+	}
 }
 
 void AHNKPlayerPawn::Tick(float DeltaTime)
@@ -200,12 +219,66 @@ void AHNKPlayerPawn::NativeProduceInput(float DeltaMs, FMoverInputCmdContext& Ou
 
 UAbilitySystemComponent* AHNKPlayerPawn::GetAbilitySystemComponent() const
 {
-	if (AHNKPlayerStateBase* MyPlayerState = GetPlayerState<AHNKPlayerStateBase>())
+	return AbilitySystemComponent;
+}
+
+void AHNKPlayerPawn::InitAbilitySystem()
+{
+	UAbilitySystemComponent* ASC = GetAbilitySystemComponent();
+	if (IsValid(ASC))
 	{
-		return MyPlayerState->GetAbilitySystemComponent();
+		ASC->InitAbilityActorInfo(this, this);
+		DamageableAttributeSet = ASC->GetSet<UHNKDamageableAttributeSet>();
+	}
+}
+
+void AHNKPlayerPawn::InitAttributes()
+{
+	UAbilitySystemComponent* ASC = GetAbilitySystemComponent();
+	if (!IsValid(ASC))
+	{
+		return;
+	}
+
+	if (!DefaultAttributes)
+	{
+		UE_LOG(LogTemp, Error, TEXT("%s() Missing DefaultAttributes for %s. Please fill in the character's Blueprint."), *FString(__FUNCTION__), *GetName());
+		return;
+	}
+
+	// Can run on Server and Client
+	FGameplayEffectContextHandle EffectContext = ASC->MakeEffectContext();
+	EffectContext.AddSourceObject(this);
+
+	FGameplayEffectSpecHandle NewHandle = ASC->MakeOutgoingSpec(DefaultAttributes, 0, EffectContext);
+	if (NewHandle.IsValid())
+	{
+		FActiveGameplayEffectHandle ActiveGEHandle = ASC->ApplyGameplayEffectSpecToSelf(*NewHandle.Data.Get());
+	}
+}
+
+void AHNKPlayerPawn::DamageTaken(FHNKDamagePacket& DamagePacket)
+{
+}
+
+float AHNKPlayerPawn::GetHealth() const
+{
+	if (!IsValid(DamageableAttributeSet))
+	{
+		return -1.f;
 	}
 	
-	return nullptr;
+	return DamageableAttributeSet->GetHealth();
+}
+
+float AHNKPlayerPawn::GetMaxHealth() const
+{
+	if (!IsValid(DamageableAttributeSet))
+	{
+		return -1.f;
+	}
+	
+	return DamageableAttributeSet->GetMaxHealth();
 }
 
 void AHNKPlayerPawn::Input_MoveTriggered(const FInputActionValue& Value)

@@ -107,8 +107,8 @@ void AHNKCharacterBase::HandlePlayerStateReady()
 	{
 		if (AHNKPlayerStateBase* MyPlayerState = GetPlayerState<AHNKPlayerStateBase>())
 		{
-			MyPlayerState->InitAbilitySystem();
-			InitializeAttributes();
+			//MyPlayerState->InitAbilitySystem();
+			//InitializeAttributes();
 		}
 	}
 }

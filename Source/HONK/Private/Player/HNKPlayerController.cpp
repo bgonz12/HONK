@@ -7,9 +7,9 @@
 
 UAbilitySystemComponent* AHNKPlayerController::GetAbilitySystemComponent() const
 {
-	if (APlayerState* MyPlayerState = GetPlayerState<APlayerState>())
+	if (APawn* MyPawn = GetPawn())
 	{
-		return UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(MyPlayerState);
+		return UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(MyPawn);
 	}
 	
 	return nullptr;

@@ -3,6 +3,7 @@
 #pragma once
 
 // Engine Includes
+#include "AbilitySystemComponent.h"
 #include "CoreMinimal.h"
 
 // HONK Includes
@@ -11,8 +12,8 @@
 #include "Pawn/HNKPawn.h"
 #include "HNKPlayerPawn.generated.h"
 
-class UAbilitySystemComponent;
 class UCameraComponent;
+class UHNKDamageableAttributeSet;
 class UInputAction;
 class USpringArmComponent;
 struct FInputActionValue;
@@ -24,7 +25,9 @@ class HONK_API AHNKPlayerPawn : public AHNKPawn, public IAbilitySystemInterface,
 	
 public:
 	AHNKPlayerPawn();
-	
+
+	/** AActor */
+	virtual void BeginPlay() override;
 	void Tick(float DeltaTime) override;
 	
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
@@ -34,6 +37,14 @@ public:
 	
 	/** IAbilitySystemInterface */
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
+
+	void InitAbilitySystem();
+	virtual void InitAttributes();
+
+	/** IHNKDamageableInterface */
+	virtual void DamageTaken(FHNKDamagePacket& DamagePacket) override;
+	virtual float GetHealth() const override;
+	virtual float GetMaxHealth() const override;
 	
 protected:
 	void Input_MoveTriggered(const FInputActionValue& Value);
@@ -44,11 +55,25 @@ protected:
 	void Input_JumpReleased(const FInputActionValue& Value);
 	
 protected:
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category="HNKPlayer")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="AbilitySystem")
+	TObjectPtr<UAbilitySystemComponent> AbilitySystemComponent;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category="HNKPlayerPawn")
 	TObjectPtr<USpringArmComponent> SpringArmComponent;
 	
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category="HNKPlayer")
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category="HNKPlayerPawn")
 	TObjectPtr<UCameraComponent>CameraComponent;
+	
+	UPROPERTY()
+	const UHNKDamageableAttributeSet* DamageableAttributeSet;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AbilitySystem")
+	EGameplayEffectReplicationMode AscReplicationMode = EGameplayEffectReplicationMode::Mixed;
+	
+	// Default attributes for a character for initializing on spawn/respawn.
+	// This is an instant GE that overrides the values for attributes that get reset on spawn/respawn.
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "HNKPlayerPawn|Abilities")
+	TSubclassOf<UGameplayEffect> DefaultAttributes;
 	
 	/** Move Input Action */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input)
