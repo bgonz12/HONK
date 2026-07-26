@@ -6,16 +6,19 @@
 #include "CoreMinimal.h"
 
 // HONK Includes
+#include "AbilitySystemInterface.h"
+#include "Gameplay/HNKDamageableInterface.h"
 #include "Pawn/HNKPawn.h"
 #include "HNKPlayerPawn.generated.h"
 
+class UAbilitySystemComponent;
 class UCameraComponent;
 class UInputAction;
 class USpringArmComponent;
 struct FInputActionValue;
 
 UCLASS()
-class HONK_API AHNKPlayerPawn : public AHNKPawn
+class HONK_API AHNKPlayerPawn : public AHNKPawn, public IAbilitySystemInterface, public IHNKDamageableInterface
 {
 	GENERATED_BODY()
 	
@@ -26,8 +29,12 @@ public:
 	
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 
+	/** IMoverInputProducerInterface */
 	virtual void NativeProduceInput(float DeltaMs, FMoverInputCmdContext& OutInputCmd) override;
-
+	
+	/** IAbilitySystemInterface */
+	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
+	
 protected:
 	void Input_MoveTriggered(const FInputActionValue& Value);
 	void Input_MoveCompleted(const FInputActionValue& Value);

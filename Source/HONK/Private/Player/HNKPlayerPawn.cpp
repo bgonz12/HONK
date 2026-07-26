@@ -9,6 +9,7 @@
 #include "DefaultMovementSet/CharacterMoverComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Pawn/HNKCharacterMoverComponent.h"
+#include "Player/HNKPlayerStateBase.h"
 
 AHNKPlayerPawn::AHNKPlayerPawn()
 {
@@ -195,6 +196,16 @@ void AHNKPlayerPawn::NativeProduceInput(float DeltaMs, FMoverInputCmdContext& Ou
 		bIsJumpJustPressed = false;
 		//bShouldToggleFlying = false;
 	}
+}
+
+UAbilitySystemComponent* AHNKPlayerPawn::GetAbilitySystemComponent() const
+{
+	if (AHNKPlayerStateBase* MyPlayerState = GetPlayerState<AHNKPlayerStateBase>())
+	{
+		return MyPlayerState->GetAbilitySystemComponent();
+	}
+	
+	return nullptr;
 }
 
 void AHNKPlayerPawn::Input_MoveTriggered(const FInputActionValue& Value)
