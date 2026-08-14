@@ -1,15 +1,16 @@
 
 #pragma once
 
-// Engine Includes
 #include "CoreMinimal.h"
+
+// Engine Includes
+#include "AbilitySystemComponent.h"
+#include "AbilitySystemInterface.h"
 #include "GameFramework/Character.h"
 
-// GAS Includes
-#include "AbilitySystemInterface.h"
+// HONK Includes
 #include "Gameplay/HNKDamageableInterface.h"
 
-// HONK Includes
 #include "HNKCharacterBase.generated.h"
 
 class UAbilitySystemComponent;
@@ -42,8 +43,14 @@ protected:
 	virtual void HandlePlayerStateReady();
 	
 protected:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="AbilitySystem")
+	TObjectPtr<UAbilitySystemComponent> AbilitySystemComponent;
+	
 	// Default attributes for a character for initializing on spawn/respawn.
 	// This is an instant GE that overrides the values for attributes that get reset on spawn/respawn.
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "HNKCharacterBase|Abilities")
 	TSubclassOf<UGameplayEffect> DefaultAttributes;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AbilitySystem")
+	EGameplayEffectReplicationMode AscReplicationMode = EGameplayEffectReplicationMode::Mixed;	
 };

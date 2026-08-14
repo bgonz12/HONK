@@ -14,6 +14,10 @@ AHNKCharacterBase::AHNKCharacterBase()
 {
 	PrimaryActorTick.bCanEverTick = true;
 	
+	AbilitySystemComponent = CreateDefaultSubobject<UAbilitySystemComponent>(TEXT("AbilitySystemComponent"));
+	AbilitySystemComponent->SetIsReplicated(true);
+	AbilitySystemComponent->SetReplicationMode(AscReplicationMode);
+	
 	// Init capsule
 	GetCapsuleComponent()->InitCapsuleSize(35.f, 90.f);
 	
@@ -54,12 +58,7 @@ void AHNKCharacterBase::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 
 UAbilitySystemComponent* AHNKCharacterBase::GetAbilitySystemComponent() const
 {
-	if (AHNKPlayerStateBase* MyPlayerState = GetPlayerState<AHNKPlayerStateBase>())
-	{
-		return MyPlayerState->GetAbilitySystemComponent();
-	}
-	
-	return nullptr;
+	return AbilitySystemComponent;
 }
 
 void AHNKCharacterBase::InitializeAttributes()
