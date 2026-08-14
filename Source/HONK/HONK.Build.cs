@@ -9,6 +9,7 @@ public class HONK : ModuleRules
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 	
 		PublicDependencyModuleNames.AddRange(new string[] {
+			"AdvancedSessions",
 			"ChaosMover",
 			"Core",
 			"CoreUObject",
