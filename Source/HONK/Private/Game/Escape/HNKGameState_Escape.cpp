@@ -10,33 +10,6 @@
 #include "Kismet/GameplayStatics.h"
 #include "Net/UnrealNetwork.h"
 
-void AHNKGameState_Escape::Server_PlayerReadyUp_Implementation(APlayerController* PlayerController)
-{
-	if (!ReadyPlayerControllers.Contains(PlayerController))
-	{
-		ReadyPlayerControllers.AddUnique(PlayerController);
-		
-		if (AHNKGameMode* GameMode = Cast<AHNKGameMode>(UGameplayStatics::GetGameMode(this)))
-		{
-			TArray<APlayerController*> PlayerControllers;
-			GameMode->GetConnectedPlayerControllers(PlayerControllers);
-			
-			if (ReadyPlayerControllers.Num() >= PlayerControllers.Num())
-			{
-				SetCurrentEscapeState(EHNKEscapeState::ES_Performance); // Begin Performance
-			}
-		}
-	}
-}
-
-void AHNKGameState_Escape::Server_PlayerUnreadyUp_Implementation(APlayerController* PlayerController)
-{
-	if (ReadyPlayerControllers.Contains(PlayerController))
-	{
-		ReadyPlayerControllers.Remove(PlayerController);
-	}
-}
-
 void AHNKGameState_Escape::SetTimeRemaining(float InTimeRemaining)
 {
 	TimeRemaining = InTimeRemaining;
@@ -54,10 +27,37 @@ void AHNKGameState_Escape::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>&
 	DOREPLIFETIME(AHNKGameState_Escape, CurrentEscapeState);
 }
 
+void AHNKGameState_Escape::Server_PlayerReadyUp(APlayerController* PlayerController)
+{
+	Super::Server_PlayerReadyUp(PlayerController);
+	
+	if (AHNKGameMode* GameMode = Cast<AHNKGameMode>(UGameplayStatics::GetGameMode(this)))
+	{
+		TArray<APlayerController*> PlayerControllers;
+		GameMode->GetConnectedPlayerControllers(PlayerControllers);
+			
+		if (ReadyPlayerControllers.Num() >= PlayerControllers.Num())
+		{
+			SetCurrentEscapeState(EHNKEscapeState::ES_Performance); // Begin Performance
+		}
+	}
+}
+
+void AHNKGameState_Escape::Server_PlayerUnreadyUp(APlayerController* PlayerController)
+{
+	Super::Server_PlayerUnreadyUp(PlayerController);
+}
+
 void AHNKGameState_Escape::SetCurrentEscapeState(const EHNKEscapeState& InEscapeState)
 {
+	if (InEscapeState == CurrentEscapeState)
+	{
+		return;
+	}
+	
 	EHNKEscapeState OldEscapeState = CurrentEscapeState;
 	CurrentEscapeState = InEscapeState;
 	
+	BP_CurrentEscapeStateChanged(CurrentEscapeState);
 	OnEscapeStateChanged.Broadcast(this, CurrentEscapeState);
 }

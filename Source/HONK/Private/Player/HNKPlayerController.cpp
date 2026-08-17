@@ -4,6 +4,8 @@
 
 // Engine Includes
 #include "AbilitySystemGlobals.h"
+#include "Game/HNKGameState.h"
+#include "Kismet/GameplayStatics.h"
 
 UAbilitySystemComponent* AHNKPlayerController::GetAbilitySystemComponent() const
 {
@@ -33,4 +35,12 @@ void AHNKPlayerController::OnRep_PlayerState()
 {
 	Super::OnRep_PlayerState();
 	BP_OnRep_PlayerState();
+}
+
+void AHNKPlayerController::Server_ReadyUp_Implementation()
+{
+	if (AHNKGameState* GameState = Cast<AHNKGameState>(UGameplayStatics::GetGameState(this)))
+	{
+		GameState->Server_PlayerReadyUp(this);
+	}
 }

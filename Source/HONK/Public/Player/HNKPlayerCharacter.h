@@ -6,7 +6,7 @@
 #include "CoreMinimal.h"
 
 // HONK Includes
-#include "Character/HNKCharacterBase.h"
+#include "Character/HNKCharacter.h"
 #include "HNKPlayerCharacter.generated.h"
 
 class UInputAction;
@@ -32,7 +32,7 @@ public:
 };
 
 UCLASS()
-class HONK_API AHNKPlayerCharacter : public AHNKCharacterBase
+class HONK_API AHNKPlayerCharacter : public AHNKCharacter
 {
 	GENERATED_BODY()
 	

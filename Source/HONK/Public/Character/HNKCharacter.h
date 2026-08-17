@@ -11,19 +11,19 @@
 // HONK Includes
 #include "Gameplay/HNKDamageableInterface.h"
 
-#include "HNKCharacterBase.generated.h"
+#include "HNKCharacter.generated.h"
 
 class UAbilitySystemComponent;
 class UGameplayEffect;
 class UInputComponent;
 
 UCLASS()
-class HONK_API AHNKCharacterBase : public ACharacter, public IAbilitySystemInterface, public IHNKDamageableInterface
+class HONK_API AHNKCharacter : public ACharacter, public IAbilitySystemInterface, public IHNKDamageableInterface
 {
 	GENERATED_BODY()
 
 public:
-	AHNKCharacterBase();
+	AHNKCharacter(const FObjectInitializer& ObjectInitializer);
 
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
@@ -35,6 +35,13 @@ public:
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 
 	virtual void InitializeAttributes();
+
+	//~ Begin ACharacter
+	virtual void LaunchCharacter(FVector LaunchVelocity, bool bXYOverride, bool bZOverride) override;
+	virtual void Landed(const FHitResult& Hit) override;
+	//~ End ACharacter
+
+	bool GetWasLaunched() const { return bWasLaunched; }
 	
 protected:
 	virtual void PossessedBy(AController* NewController) override;
@@ -52,5 +59,8 @@ protected:
 	TSubclassOf<UGameplayEffect> DefaultAttributes;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AbilitySystem")
-	EGameplayEffectReplicationMode AscReplicationMode = EGameplayEffectReplicationMode::Mixed;	
+	EGameplayEffectReplicationMode AscReplicationMode = EGameplayEffectReplicationMode::Mixed;
+	
+	UPROPERTY()
+	bool bWasLaunched = false;
 };

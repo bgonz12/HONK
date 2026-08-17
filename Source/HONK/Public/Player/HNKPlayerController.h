@@ -32,6 +32,9 @@ public:
 	UFUNCTION(BlueprintImplementableEvent, Category = "HNKPlayerController|Pawn")
 	void BP_OnRep_PlayerState();
 
+	UFUNCTION(Server, Reliable, BlueprintCallable, Category = "HNKPlayerController|Pawn")
+	void Server_ReadyUp();
+	
 public:
 	UPROPERTY(BlueprintAssignable)
 	FHNK_OnRep_Pawn_Signature OnRep_Pawn_Delegate;

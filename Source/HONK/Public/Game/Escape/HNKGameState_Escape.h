@@ -32,13 +32,15 @@ public:
 	virtual void GetLifetimeReplicatedProps(TArray< FLifetimeProperty > &OutLifetimeProps) const override;
 	//~ End UObject
 
-	UFUNCTION(Server, Reliable, BlueprintCallable)
-	void Server_PlayerReadyUp(APlayerController* PlayerController);
-	
-	UFUNCTION(Server, Reliable, BlueprintCallable)
-	void Server_PlayerUnreadyUp(APlayerController* PlayerController);
+	//~ Begin AHNKGameState
+	virtual void Server_PlayerReadyUp(APlayerController* PlayerController) override;
+	virtual void Server_PlayerUnreadyUp(APlayerController* PlayerController) override;
+	//~ End AHNKGameState
 	
 	void SetCurrentEscapeState(const EHNKEscapeState& InEscapeState);
+	
+	UFUNCTION(BlueprintImplementableEvent)
+	void BP_CurrentEscapeStateChanged(const EHNKEscapeState& NewEscapeState);
 	
 	UFUNCTION(BlueprintCallable)
 	void SetTimeRemaining(float InTimeRemaining);
@@ -51,9 +53,6 @@ public:
 	FHNKEscapeStateChanged OnEscapeStateChanged;
 	
 protected:
-	UPROPERTY(BlueprintReadWrite, VisibleAnywhere)
-	TArray<APlayerController*> ReadyPlayerControllers;
-	
 	UPROPERTY(ReplicatedUsing = OnRep_CurrentEscapeState, BlueprintReadOnly, VisibleAnywhere)
 	EHNKEscapeState CurrentEscapeState = EHNKEscapeState::ES_None;
 	

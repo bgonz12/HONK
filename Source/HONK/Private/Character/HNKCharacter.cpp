@@ -1,16 +1,17 @@
 // HONK Includes
-#include "Character/HNKCharacterBase.h"
+#include "Character/HNKCharacter.h"
 
 // GAS Includes
 #include "AbilitySystemComponent.h"
 
 // Engine Includes
+#include "Character/HNKCharacterMovementComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
-#include "Gameplay/HNKGameplayStatics.h"
 #include "Player/HNKPlayerStateBase.h"
 
-AHNKCharacterBase::AHNKCharacterBase()
+AHNKCharacter::AHNKCharacter(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer.SetDefaultSubobjectClass<UHNKCharacterMovementComponent>(ACharacter::CharacterMovementComponentName))
 {
 	PrimaryActorTick.bCanEverTick = true;
 	
@@ -38,30 +39,30 @@ AHNKCharacterBase::AHNKCharacterBase()
 	GetCharacterMovement()->BrakingDecelerationFalling = 1500.f;
 }
 
-void AHNKCharacterBase::BeginPlay()
+void AHNKCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	
 }
 
-void AHNKCharacterBase::Tick(float DeltaTime)
+void AHNKCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
 }
 
-void AHNKCharacterBase::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
+void AHNKCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
 }
 
-UAbilitySystemComponent* AHNKCharacterBase::GetAbilitySystemComponent() const
+UAbilitySystemComponent* AHNKCharacter::GetAbilitySystemComponent() const
 {
 	return AbilitySystemComponent;
 }
 
-void AHNKCharacterBase::InitializeAttributes()
+void AHNKCharacter::InitializeAttributes()
 {
 	UAbilitySystemComponent* ASC = GetAbilitySystemComponent();
 	if (!IsValid(ASC))
@@ -86,21 +87,35 @@ void AHNKCharacterBase::InitializeAttributes()
 	}
 }
 
-void AHNKCharacterBase::PossessedBy(AController* NewController)
+void AHNKCharacter::LaunchCharacter(FVector LaunchVelocity, bool bXYOverride, bool bZOverride)
+{
+	Super::LaunchCharacter(LaunchVelocity, bXYOverride, bZOverride);
+	
+	bWasLaunched = true;
+}
+
+void AHNKCharacter::Landed(const FHitResult& Hit)
+{
+	Super::Landed(Hit);
+	
+	bWasLaunched = false;
+}
+
+void AHNKCharacter::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
 	
 	HandlePlayerStateReady();
 }
 
-void AHNKCharacterBase::OnRep_PlayerState()
+void AHNKCharacter::OnRep_PlayerState()
 {
 	Super::OnRep_PlayerState();
 
 	HandlePlayerStateReady();
 }
 
-void AHNKCharacterBase::HandlePlayerStateReady()
+void AHNKCharacter::HandlePlayerStateReady()
 {
 	if (HasAuthority())
 	{
