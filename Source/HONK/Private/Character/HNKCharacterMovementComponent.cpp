@@ -6,19 +6,56 @@
 // HONK Includes
 #include "Character/HNKCharacter.h"
 
+// Engine Includes
+#include "Net/UnrealNetwork.h"
+
+void UHNKCharacterMovementComponent::TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+{
+	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+	
+	if (APawn* OwnerPawn = GetOwner<APawn>())
+	{
+		if (OwnerPawn->IsLocallyControlled())
+		{
+			if (ShouldApplyJumpGravity())
+			{
+				if (!bApplyJumpGravity)
+				{
+					bApplyJumpGravity = true;
+					Server_SetApplyJumpGravity(true);
+				}
+			}
+			else
+			{
+				if (bApplyJumpGravity)
+				{
+					bApplyJumpGravity = false;
+					Server_SetApplyJumpGravity(false);
+				}
+				
+			}
+		}
+		
+	}
+}
+
+void UHNKCharacterMovementComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	
+	DOREPLIFETIME(UHNKCharacterMovementComponent, bApplyJumpGravity);
+}
+
 float UHNKCharacterMovementComponent::GetGravityZ() const
 {
-	float JumpMod = 1.f;
+	float GravityMod = FallingGravityMod;
 	
-	if (JumpGravityMod != 1.f)
+	if (bApplyJumpGravity)
 	{
-		if (ShouldApplyJumpGravity())
-		{
-			JumpMod = JumpGravityMod;
-		}
+		GravityMod = JumpGravityMod;
 	}
 	
-	return Super::GetGravityZ() * JumpMod;
+	return Super::GetGravityZ() * GravityMod;
 }
 
 bool UHNKCharacterMovementComponent::ShouldApplyJumpGravity() const
@@ -36,4 +73,9 @@ bool UHNKCharacterMovementComponent::ShouldApplyJumpGravity() const
 	}
 	
 	return false;
+}
+
+void UHNKCharacterMovementComponent::Server_SetApplyJumpGravity_Implementation(bool bInApplyJumpGravity)
+{
+	bApplyJumpGravity = bInApplyJumpGravity;
 }
