@@ -85,14 +85,28 @@ void AHNKPlayerCharacter::Input_JumpReleased(const FInputActionValue& Value)
 
 void AHNKPlayerCharacter::Input_Ragdoll(const FInputActionValue& Value)
 {
-	if (UCapsuleComponent* MyCapsule = GetCapsuleComponent())
+	if (!RagdollData.bIsInRagdoll)
 	{
-		BP_ScoreRagdollGag();
-		Server_StartRagdoll(MyCapsule->GetComponentVelocity());
+		if (UCapsuleComponent* MyCapsule = GetCapsuleComponent())
+		{
+			FVector RagdollVelocity = MyCapsule->GetComponentVelocity();
+
+			Server_StartRagdoll(RagdollVelocity);
+			StartRagdoll(RagdollVelocity);
+		}
 	}
 }
 
 void AHNKPlayerCharacter::Server_StartRagdoll_Implementation(const FVector& InRagdollLaunchVelocity)
+{
+	if (!RagdollData.bIsInRagdoll)
+	{
+		BP_ScoreRagdollGag();
+		StartRagdoll(InRagdollLaunchVelocity);
+	}
+}
+
+void AHNKPlayerCharacter::StartRagdoll(const FVector& InRagdollLaunchVelocity)
 {
 	if (!RagdollData.bIsInRagdoll)
 	{
@@ -106,6 +120,21 @@ void AHNKPlayerCharacter::Server_StartRagdoll_Implementation(const FVector& InRa
 	}
 }
 
+void AHNKPlayerCharacter::Server_StopRagdoll_Implementation()
+{
+	StopRagdoll();
+}
+
+void AHNKPlayerCharacter::StopRagdoll()
+{
+	if (RagdollData.bIsInRagdoll && RagdollData.bCanRecoverFromRagdoll)
+	{
+		RagdollData.bIsInRagdoll = false;
+		RagdollData.RagdollLaunchVelocity = FVector::ZeroVector;
+		OnRep_RagdollProperties(); // Call this for the server
+	}
+}
+
 void AHNKPlayerCharacter::RagdollRecoverTimeEnd()
 {
 	RagdollData.bCanRecoverFromRagdoll = true;
@@ -114,14 +143,4 @@ void AHNKPlayerCharacter::RagdollRecoverTimeEnd()
 void AHNKPlayerCharacter::OnRep_RagdollProperties()
 {
 	BP_RagdollPropertiesChanged();
-}
-
-void AHNKPlayerCharacter::Server_StopRagdoll_Implementation()
-{
-	if (RagdollData.bIsInRagdoll && RagdollData.bCanRecoverFromRagdoll)
-	{
-		RagdollData.bIsInRagdoll = false;
-		RagdollData.RagdollLaunchVelocity = FVector::ZeroVector;
-		OnRep_RagdollProperties(); // Call this for the server
-	}
 }

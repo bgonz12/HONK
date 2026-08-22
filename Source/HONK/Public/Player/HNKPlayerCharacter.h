@@ -55,13 +55,15 @@ protected:
 	void Input_JumpStarted(const FInputActionValue& Value);
 	void Input_JumpReleased(const FInputActionValue& Value);
 	void Input_Ragdoll(const FInputActionValue& Value);
-
+	
 	UFUNCTION(Server, Reliable)
 	void Server_StartRagdoll(const FVector& InRagdollLaunchVelocity);
-	
+	void StartRagdoll(const FVector& InRagdollLaunchVelocity);
+
 	UFUNCTION(Server, Reliable)
 	void Server_StopRagdoll();
-	
+	void StopRagdoll();
+
 	UFUNCTION()
 	void RagdollRecoverTimeEnd();
 	

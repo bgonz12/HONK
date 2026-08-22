@@ -7,6 +7,7 @@
 #include "Character/HNKCharacter.h"
 
 // Engine Includes
+#include "GameFramework/GameNetworkManager.h"
 #include "Net/UnrealNetwork.h"
 
 void UHNKCharacterMovementComponent::TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -70,6 +71,39 @@ bool UHNKCharacterMovementComponent::ShouldApplyJumpGravity() const
 		{
 			return true;
 		}
+	}
+	
+	return false;
+}
+
+bool UHNKCharacterMovementComponent::ServerExceedsAllowablePositionError(float ClientTimeStamp, float DeltaTime, const FVector& Accel, const FVector& ClientWorldLocation, const FVector& RelativeClientLocation, UPrimitiveComponent* ClientMovementBase, FName ClientBaseBoneName, uint8 ClientMovementMode)
+{
+	// Check for disagreement in movement mode
+	const uint8 CurrentPackedMovementMode = PackNetworkMovementMode();
+	if (CurrentPackedMovementMode != ClientMovementMode)
+	{
+		// Consider this a major correction, see SendClientAdjustment()
+		bNetworkLargeClientCorrection = true;
+		return true;
+	}
+
+	const FVector LocDiff = UpdatedComponent->GetComponentLocation() - ClientWorldLocation;	
+	
+	// Check if we exceed the allowable position error
+	bool bExceedsAllowablePositionError = false;
+	if (OverrideAllowablePositionErrorSquared >= 0.f)
+	{
+		bExceedsAllowablePositionError = (LocDiff | LocDiff) > OverrideAllowablePositionErrorSquared;
+	}
+	else if (const AGameNetworkManager* GameNetworkManager = (const AGameNetworkManager*)(AGameNetworkManager::StaticClass()->GetDefaultObject()))
+	{
+		bExceedsAllowablePositionError = GameNetworkManager->ExceedsAllowablePositionError(LocDiff);
+	}
+
+	if (bExceedsAllowablePositionError)
+	{
+		bNetworkLargeClientCorrection |= (LocDiff.SizeSquared() > FMath::Square(NetworkLargeClientCorrectionDistance));
+		return true;
 	}
 	
 	return false;

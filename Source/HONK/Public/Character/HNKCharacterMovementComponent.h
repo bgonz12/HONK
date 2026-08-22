@@ -29,6 +29,9 @@ public:
 	void Server_SetApplyJumpGravity(bool bInApplyJumpGravity);
 	
 protected:
+	virtual bool ServerExceedsAllowablePositionError(float ClientTimeStamp, float DeltaTime, const FVector& Accel, const FVector& ClientWorldLocation, const FVector& RelativeClientLocation, UPrimitiveComponent* ClientMovementBase, FName ClientBaseBoneName, uint8 ClientMovementMode) override;
+	
+protected:
 	/** Modifier applied gravity while falling. */
 	UPROPERTY(EditAnywhere)
 	float FallingGravityMod = 1.f;
@@ -40,4 +43,8 @@ protected:
 	/** Client needs to replicate this to the server so they don't desync from fall gravity. */
 	UPROPERTY(Replicated, VisibleAnywhere)
 	bool bApplyJumpGravity = false;
+	
+	UPROPERTY(Category="Character Movement (Networking)", EditDefaultsOnly, meta=(ClampMin="0.0", UIMin="0.0", ForceUnits=cm))
+	float OverrideAllowablePositionErrorSquared = -1.f;
+
 };
