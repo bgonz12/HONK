@@ -9,6 +9,7 @@
 // Engine Includes
 #include "Kismet/GameplayStatics.h"
 #include "Net/UnrealNetwork.h"
+#include "Save/HNKSaveGame_Session.h"
 
 void AHNKGameState_Escape::SetTimeRemaining(float InTimeRemaining)
 {
@@ -46,6 +47,24 @@ void AHNKGameState_Escape::Server_PlayerReadyUp(APlayerController* PlayerControl
 void AHNKGameState_Escape::Server_PlayerUnreadyUp(APlayerController* PlayerController)
 {
 	Super::Server_PlayerUnreadyUp(PlayerController);
+}
+
+void AHNKGameState_Escape::SaveObject(USaveGame* SaveGame)
+{
+	if (UHNKSaveGame_Session* SessionSave = Cast<UHNKSaveGame_Session>(SaveGame))
+	{
+		SessionSave->CurrentDay = CurrentDay;
+		SessionSave->CurrentMoney = CurrentMoney;
+	}
+}
+
+void AHNKGameState_Escape::LoadObject(USaveGame* SaveGame)
+{
+	if (UHNKSaveGame_Session* SessionSave = Cast<UHNKSaveGame_Session>(SaveGame))
+	{
+		CurrentDay = SessionSave->CurrentDay;
+		CurrentMoney = SessionSave->CurrentMoney;
+	}
 }
 
 void AHNKGameState_Escape::SetCurrentEscapeState(const EHNKEscapeState& InEscapeState)

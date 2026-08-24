@@ -3,21 +3,58 @@
 // HONK Includes
 #include "Inventory/Item/HNKItemDrop.h"
 
+#include "Save/HNKSaveGame_Session.h"
+
 AHNKItemDrop::AHNKItemDrop()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
 }
 
-void AHNKItemDrop::BeginPlay()
+const FGuid& AHNKItemDrop::GetGuid() const
 {
-	Super::BeginPlay();
-	
+	return Guid;
 }
 
-void AHNKItemDrop::Tick(float DeltaTime)
+void AHNKItemDrop::SetGuid(const FGuid& InGuid)
 {
-	Super::Tick(DeltaTime);
+	Guid = InGuid;
+}
 
+void AHNKItemDrop::SaveObject(USaveGame* SaveGame)
+{
+	if (!GetGuid().IsValid())
+	{
+		return;
+	}
+	
+	if (UHNKSaveGame_Session* SessionSave = Cast<UHNKSaveGame_Session>(SaveGame))
+	{
+		FHNKPlacedItemSaveData& SaveData = SessionSave->PlacedItems.FindOrAdd(GetGuid());
+		SaveData.ItemDef = ItemDef;
+		SaveData.Transform = PlacedTransform;
+	}
+}
+
+void AHNKItemDrop::LoadObject(USaveGame* SaveGame)
+{
+	if (!GetGuid().IsValid())
+	{
+		return;
+	}
+	
+	if (UHNKSaveGame_Session* SessionSave = Cast<UHNKSaveGame_Session>(SaveGame))
+	{
+		if (FHNKPlacedItemSaveData* SaveData = SessionSave->PlacedItems.Find(GetGuid()))
+		{
+			SetPlacedTransform(SaveData->Transform);
+			SetActorTransform(SaveData->Transform);
+		}
+	}
+}
+
+void AHNKItemDrop::SetPlacedTransform(const FTransform& InTransform)
+{
+	PlacedTransform = InTransform;
 }
 

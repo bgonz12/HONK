@@ -14,4 +14,5 @@ class HONK_API UHNKSaveGame : public USaveGame
 {
 	GENERATED_BODY()
 	
+public:
 };

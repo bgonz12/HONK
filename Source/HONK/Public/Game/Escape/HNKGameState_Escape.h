@@ -6,6 +6,7 @@
 
 // HONK Includes
 #include "Game/HNKGameState.h"
+#include "Save/HNKSaveableObjectInterface.h"
 
 #include "HNKGameState_Escape.generated.h"
 
@@ -23,7 +24,7 @@ enum class EHNKEscapeState : uint8
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FHNKEscapeStateChanged, AHNKGameState_Escape*, GameState, EHNKEscapeState, NewEscapeState);
 
 UCLASS()
-class HONK_API AHNKGameState_Escape : public AHNKGameState
+class HONK_API AHNKGameState_Escape : public AHNKGameState, public IHNKSaveableObjectInterface
 {
 	GENERATED_BODY()
 	
@@ -36,6 +37,11 @@ public:
 	virtual void Server_PlayerReadyUp(APlayerController* PlayerController) override;
 	virtual void Server_PlayerUnreadyUp(APlayerController* PlayerController) override;
 	//~ End AHNKGameState
+	
+	//~Begin IHNKSaveableObjectInterface
+	virtual void SaveObject(USaveGame* SaveGame) override;
+	virtual void LoadObject(USaveGame* SaveGame) override;
+	//~End IHNKSaveableObjectInterface
 	
 	void SetCurrentEscapeState(const EHNKEscapeState& InEscapeState);
 	
@@ -58,6 +64,9 @@ protected:
 	
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	float TimeRemaining = 0.f;
+	
+	UPROPERTY(Replicated, BlueprintReadWrite, EditAnywhere)
+	int32 CurrentDay = 0;
 	
 	UPROPERTY(Replicated, BlueprintReadWrite, EditAnywhere)
 	int32 CurrentMoney = 0;

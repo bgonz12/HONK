@@ -36,10 +36,10 @@ public:
 
 	virtual void InitializeAttributes();
 
-	//~ Begin ACharacter
+	//~Begin ACharacter
 	virtual void LaunchCharacter(FVector LaunchVelocity, bool bXYOverride, bool bZOverride) override;
 	virtual void Landed(const FHitResult& Hit) override;
-	//~ End ACharacter
+	//~End ACharacter
 
 	bool GetWasLaunched() const { return bWasLaunched; }
 	

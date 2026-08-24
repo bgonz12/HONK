@@ -9,6 +9,9 @@
 #include "Engine/DataAsset.h"
 #include "HNKItemDefinition.generated.h"
 
+class AHNKItemDrop;
+class AHNKItemHologram;
+
 UCLASS(BlueprintType)
 class HONK_API UHNKItemDefinition : public UDataAsset
 {
@@ -21,12 +24,12 @@ public:
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	UTexture2D* ItemIcon;
 	
-	UPROPERTY(BlueprintReadOnly, EditAnywhere)
-	TSubclassOf<class AHNKItemDrop> ItemDropClass;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	int32 BaseCost = 0;
 	
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
-	TSubclassOf<class AHNKItemConstruct> ItemConstructClass;
+	TSubclassOf<AHNKItemDrop> ItemDropClass;
 	
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
-	TSubclassOf<class AHNKItemHologram> ItemHologramClass;
+	TSubclassOf<AHNKItemHologram> ItemHologramClass;
 };

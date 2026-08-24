@@ -16,23 +16,4 @@ struct FHNKItemShopData
 public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	class UHNKItemDefinition* ItemDef;
-	
-	UPROPERTY(BlueprintReadWrite, EditAnywhere)
-	float BaseCost;
-};
-
-USTRUCT(BlueprintType)
-struct FHNKItemConstructData
-{
-	GENERATED_BODY()
-	
-public:
-	UPROPERTY(BlueprintReadWrite, EditAnywhere)
-	class UHNKItemDefinition* ItemDef;
-	
-	UPROPERTY(BlueprintReadWrite, EditAnywhere)
-	class AHNKItemConstruct* ItemConstruct;
-
-	UPROPERTY(BlueprintReadWrite, EditAnywhere)
-	FTransform Transform;
 };
