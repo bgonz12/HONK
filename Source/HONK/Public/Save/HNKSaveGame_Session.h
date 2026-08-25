@@ -21,7 +21,7 @@ public:
 	TObjectPtr<UHNKItemDefinition> ItemDef;
 	
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
-	FTransform Transform;
+	FTransform PlacedTransform;
 };
 
 UCLASS()

@@ -19,10 +19,17 @@ public:
 	virtual void Logout(AController* Exiting) override;
 	//~ End AGameModeBase Interface
 	
+	//~ Begin AGameMode Interface
+	virtual bool ReadyToStartMatch_Implementation() override;
+	//~ End AGameMode Interface
+
+	
 	UFUNCTION(BlueprintCallable)
 	void GetConnectedPlayerControllers(TArray<APlayerController*>& OutPlayerControllers) const;
 	
 protected:
 	UPROPERTY(BlueprintReadOnly, VisibleANywhere)
 	TArray<APlayerController*> ConnectedPlayerControllers;
+	
+	bool bFinishedMapInitialLoad = false;
 };

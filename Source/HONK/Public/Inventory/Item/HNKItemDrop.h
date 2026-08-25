@@ -14,7 +14,7 @@
 #include "HNKItemDrop.generated.h"
 
 UCLASS()
-class HONK_API AHNKItemDrop : public AActor, public IHNKGuidInterface, public IHNKSaveableObjectInterface
+class HONK_API AHNKItemDrop : public AActor, public IHNKGuidInterface
 {
 	GENERATED_BODY()
 	
@@ -26,21 +26,10 @@ public:
 	virtual void SetGuid(const FGuid& InGuid) override;
 	//~End IHNKGuidInterface
 	
-	//~Begin IHNKSaveableObjectInterface
-	virtual void SaveObject(USaveGame* SaveGame) override;
-	virtual void LoadObject(USaveGame* SaveGame) override;
-	//~End IHNKSaveableObjectInterface
-	
-	UFUNCTION(BlueprintCallable)
-	void SetPlacedTransform(const FTransform& InTransform);
-	
 protected:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	class UHNKItemDefinition* ItemDef;
 	
 	UPROPERTY(VisibleInstanceOnly)
 	FGuid Guid;
-	
-	UPROPERTY(VisibleInstanceOnly)
-	FTransform PlacedTransform;
 };

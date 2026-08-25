@@ -6,6 +6,7 @@
 
 // HONK Includes
 #include "Game/HNKGameMode.h"
+#include "Inventory/HNKInventoryTypes.h"
 #include "Save/HNKSaveableObjectInterface.h"
 
 #include "HNKGameMode_Escape.generated.h"
@@ -24,7 +25,10 @@ public:
 	virtual void LoadObject(USaveGame* SaveGame) override;
 	//~End IHNKSaveableObjectInterface
 	
+	UFUNCTION(BlueprintCallable)
+	void UpdatePlacedItemTransform(const FGuid& Guid, const FTransform& InTransform);
+	
 protected:
 	UPROPERTY(BlueprintReadWrite, VisibleAnywhere)
-	TArray<AHNKItemDrop*> PlacedItems;
+	TMap<FGuid, FHNKPlacedItemData> PlacedItems;
 };

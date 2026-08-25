@@ -22,6 +22,18 @@ void AHNKGameMode::Logout(AController* Exiting)
 	Super::Logout(Exiting);
 }
 
+bool AHNKGameMode::ReadyToStartMatch_Implementation()
+{
+	// Waiting a frame so we can get the player starts
+	if (!bFinishedMapInitialLoad)
+	{
+		bFinishedMapInitialLoad = true;
+		return false;
+	}
+	
+	return Super::ReadyToStartMatch_Implementation();
+}
+
 void AHNKGameMode::GetConnectedPlayerControllers(TArray<APlayerController*>& OutPlayerControllers) const
 {
 	OutPlayerControllers = ConnectedPlayerControllers;

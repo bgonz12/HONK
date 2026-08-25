@@ -8,6 +8,9 @@
 // HONK Includes
 #include "HNKInventoryTypes.generated.h"
 
+class UHNKItemDefinition;
+class AHNKItemDrop;
+
 USTRUCT(BlueprintType)
 struct FHNKItemShopData
 {
@@ -15,5 +18,21 @@ struct FHNKItemShopData
 	
 public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
-	class UHNKItemDefinition* ItemDef;
+	UHNKItemDefinition* ItemDef;
+};
+
+USTRUCT(BlueprintType)
+struct FHNKPlacedItemData
+{
+	GENERATED_BODY()
+	
+public:
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	TObjectPtr<UHNKItemDefinition> ItemDef;
+	
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	FTransform PlacedTransform;
+	
+	UPROPERTY(Transient, BlueprintReadOnly, VisibleAnywhere)
+	TObjectPtr<AHNKItemDrop> ItemDrop;
 };

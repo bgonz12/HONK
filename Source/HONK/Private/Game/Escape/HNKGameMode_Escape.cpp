@@ -7,7 +7,6 @@
 #include "Game/Escape/HNKGameState_Escape.h"
 #include "Inventory/Item/HNKItemDefinition.h"
 #include "Inventory/Item/HNKItemDrop.h"
-#include "Kismet/KismetSystemLibrary.h"
 #include "Save/HNKSaveGame_Session.h"
 
 void AHNKGameMode_Escape::SaveObject(USaveGame* SaveGame)
@@ -17,9 +16,22 @@ void AHNKGameMode_Escape::SaveObject(USaveGame* SaveGame)
 		return;
 	}
 	
-	for (AHNKItemDrop* PlacedItem : PlacedItems)
+	if (UHNKSaveGame_Session* SessionSave = Cast<UHNKSaveGame_Session>(SaveGame))
 	{
-		PlacedItem->SaveObject(SaveGame);
+		for (TPair<FGuid, FHNKPlacedItemData> PlacedItem : PlacedItems)
+		{
+			const FGuid& Key = PlacedItem.Key;
+			const FHNKPlacedItemData& Value = PlacedItem.Value;
+			
+			if (!Key.IsValid())
+			{
+				return;
+			}
+			
+			FHNKPlacedItemSaveData& SaveData = SessionSave->PlacedItems.FindOrAdd(Key);
+			SaveData.ItemDef = Value.ItemDef;
+			SaveData.PlacedTransform = Value.PlacedTransform;
+		}
 	}
 	
 	if (AHNKGameState_Escape* EscapeGameState = Cast<AHNKGameState_Escape>(GameState))
@@ -64,11 +76,15 @@ void AHNKGameMode_Escape::LoadObject(USaveGame* SaveGame)
 				continue;
 			}
 			
-			if (AHNKItemDrop* ItemDrop = World->SpawnActor<AHNKItemDrop>(ItemDropClass, Data.Transform, SpawnParams))
+			if (AHNKItemDrop* ItemDrop = World->SpawnActor<AHNKItemDrop>(ItemDropClass, Data.PlacedTransform, SpawnParams))
 			{
 				ItemDrop->SetGuid(Key);
-				ItemDrop->LoadObject(SaveGame);
-				PlacedItems.Add(ItemDrop);
+				ItemDrop->SetActorTransform(Data.PlacedTransform);
+				
+				FHNKPlacedItemData& PlacedItemData = PlacedItems.FindOrAdd(Key);
+				PlacedItemData.ItemDef = ItemDef;
+				PlacedItemData.PlacedTransform = Data.PlacedTransform;
+				PlacedItemData.ItemDrop = ItemDrop;
 			}
 		}
 	}
@@ -77,4 +93,13 @@ void AHNKGameMode_Escape::LoadObject(USaveGame* SaveGame)
 	{
 		EscapeGameState->LoadObject(SaveGame);
 	}
+}
+
+void AHNKGameMode_Escape::UpdatePlacedItemTransform(const FGuid& Guid, const FTransform& InTransform)
+{
+	if (FHNKPlacedItemData* PlacedItemData = PlacedItems.Find(Guid))
+	{
+		PlacedItemData->PlacedTransform = InTransform;
+	}
+
 }
