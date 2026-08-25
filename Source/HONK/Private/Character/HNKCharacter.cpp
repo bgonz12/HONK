@@ -39,18 +39,6 @@ AHNKCharacter::AHNKCharacter(const FObjectInitializer& ObjectInitializer)
 	GetCharacterMovement()->BrakingDecelerationFalling = 1500.f;
 }
 
-void AHNKCharacter::BeginPlay()
-{
-	Super::BeginPlay();
-	
-}
-
-void AHNKCharacter::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
-}
-
 void AHNKCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);

@@ -7,9 +7,12 @@
 
 // HONK Includes
 #include "Character/HNKCharacter.h"
+#include "Save/HNKSaveGame_Player.h"
 #include "HNKPlayerCharacter.generated.h"
 
 class UInputAction;
+
+struct FHNKPlayerCosmeticsData;
 struct FInputActionValue;
 
 /**
@@ -37,15 +40,22 @@ class HONK_API AHNKPlayerCharacter : public AHNKCharacter
 	GENERATED_BODY()
 	
 public:
+	AHNKPlayerCharacter(const FObjectInitializer& ObjectInitializer);
+	
 	//~Begin AActor
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	//~End AActor
 	
 	//~Begin APawn
+	virtual void OnRep_Controller() override;
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 	//~End APawn
 
 protected:
+	//~Begin APawn
+	virtual void PossessedBy(AController* NewController) override;
+	//~End APawn	
+	
 	virtual bool CanMove();
 	
 	virtual bool CanJump();
@@ -76,7 +86,22 @@ protected:
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
 	void BP_ScoreRagdollGag();
 	
+	virtual void TryInitPlayerCosmetics();
+	
+	UFUNCTION(Server, Reliable)
+	virtual void Server_SetPlayerCosmetics(const FHNKPlayerCosmeticsData& InPlayerCosmetics);
+	
+	virtual void SetPlayerCosmetics(const FHNKPlayerCosmeticsData& InPlayerCosmetics);
+	
+	UFUNCTION()
+	void OnRep_PlayerCosmetics();
+	
+	virtual void ApplyPlayerCosmetics(const FHNKPlayerCosmeticsData& InPlayerCosmetics);
+	
 protected:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	TObjectPtr<USkeletalMeshComponent> HairMesh;
+	
 	/** Move Input Action */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input)
 	TObjectPtr<UInputAction> MoveInputAction;
@@ -97,4 +122,25 @@ protected:
 	FHNKRagdollData RagdollData;
 	
 	FTimerHandle RagdollRecoverTimerHandle;
+	
+	UPROPERTY(ReplicatedUsing=OnRep_PlayerCosmetics, EditAnywhere, BlueprintReadOnly, Category=Cosmetics)
+	FHNKPlayerCosmeticsData PlayerCosmetics;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Cosmetics)
+	TObjectPtr<USkeletalMesh> TEMP_JesterHatHairMesh;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Cosmetics)
+	TSubclassOf<UAnimInstance> TEMP_JesterHatAnimInstance;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Cosmetics)
+	TObjectPtr<USkeletalMesh> TEMP_PompadourHairMesh;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Cosmetics)
+	TSubclassOf<UAnimInstance> TEMP_PompadourAnimInstance;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Cosmetics)
+	TObjectPtr<USkeletalMesh> TEMP_FeminineBodyMesh;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Cosmetics)
+	TObjectPtr<USkeletalMesh> TEMP_MasculineBodyMesh;
 };

@@ -1,20 +1,47 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-// HONK Includes
 #include "Player/HNKPlayerCharacter.h"
 
+// HONK Includes
+#include "GAS/HNKGameplayTags.h"
+#include "Save/HNKSaveGame_Player.h"
+#include "Save/HNKSaveGameSubsystem.h"
+
 // Engine Includes
-#include "InputActionValue.h"
-#include "EnhancedInputComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "EnhancedInputComponent.h"
+#include "InputActionValue.h"
+#include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Net/UnrealNetwork.h"
+
+AHNKPlayerCharacter::AHNKPlayerCharacter(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
+{
+	HairMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("HairMesh"));
+	HairMesh->SetupAttachment(GetMesh());
+}
 
 void AHNKPlayerCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	
 	DOREPLIFETIME(AHNKPlayerCharacter, RagdollData);
+}
+
+void AHNKPlayerCharacter::PossessedBy(AController* NewController)
+{
+	Super::PossessedBy(NewController);
+	
+	TryInitPlayerCosmetics();
+}
+
+
+void AHNKPlayerCharacter::OnRep_Controller()
+{
+	Super::OnRep_Controller();
+	
+	TryInitPlayerCosmetics();
 }
 
 void AHNKPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -143,4 +170,62 @@ void AHNKPlayerCharacter::RagdollRecoverTimeEnd()
 void AHNKPlayerCharacter::OnRep_RagdollProperties()
 {
 	BP_RagdollPropertiesChanged();
+}
+
+void AHNKPlayerCharacter::TryInitPlayerCosmetics()
+{
+	if (!IsLocallyControlled())
+	{
+		return;
+	}
+	
+	if (UGameInstance* GameInstance = UGameplayStatics::GetGameInstance(GetWorld()))
+	{
+		if (UHNKSaveGameSubsystem* SaveGameSubsystem = GameInstance->GetSubsystem<UHNKSaveGameSubsystem>())
+		{
+			if (const UHNKSaveGame_Player* PlayerSaveGame = Cast<UHNKSaveGame_Player>(SaveGameSubsystem->GetSaveGameInstance(EHNKSaveType::ST_Player)))
+			{
+				Server_SetPlayerCosmetics(PlayerSaveGame->PlayerCosmetics);
+			}
+		}
+	}
+}
+
+void AHNKPlayerCharacter::Server_SetPlayerCosmetics_Implementation(const FHNKPlayerCosmeticsData& InPlayerCosmetics)
+{
+	SetPlayerCosmetics(InPlayerCosmetics);
+}
+
+void AHNKPlayerCharacter::SetPlayerCosmetics(const FHNKPlayerCosmeticsData& InPlayerCosmetics)
+{
+	PlayerCosmetics = InPlayerCosmetics;
+	OnRep_PlayerCosmetics();
+}
+
+void AHNKPlayerCharacter::OnRep_PlayerCosmetics()
+{
+	ApplyPlayerCosmetics(PlayerCosmetics);
+}
+
+void AHNKPlayerCharacter::ApplyPlayerCosmetics(const FHNKPlayerCosmeticsData& InPlayerCosmetics)
+{
+	if (PlayerCosmetics.HairType == HNKGameplayTags::Cosmetic_Hair_JongleurHatF)
+	{
+		HairMesh->SetSkeletalMesh(TEMP_JesterHatHairMesh);
+		HairMesh->SetAnimInstanceClass(TEMP_JesterHatAnimInstance);
+	}
+	else
+	{
+		HairMesh->SetSkeletalMesh(TEMP_PompadourHairMesh);
+		HairMesh->SetAnimInstanceClass(TEMP_PompadourAnimInstance);
+	}
+	
+	if (PlayerCosmetics.BodyType == HNKGameplayTags::Cosmetic_Body_Feminine)
+	{
+		GetMesh()->SetSkeletalMesh(TEMP_FeminineBodyMesh);
+	}
+	else
+	{
+		GetMesh()->SetSkeletalMesh(TEMP_MasculineBodyMesh);
+	}
 }

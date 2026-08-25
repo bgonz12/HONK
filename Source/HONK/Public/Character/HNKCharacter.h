@@ -25,9 +25,6 @@ class HONK_API AHNKCharacter : public ACharacter, public IAbilitySystemInterface
 public:
 	AHNKCharacter(const FObjectInitializer& ObjectInitializer);
 
-	virtual void BeginPlay() override;
-	virtual void Tick(float DeltaTime) override;
-
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 

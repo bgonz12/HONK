@@ -7,8 +7,17 @@
 // HONK Includes
 #include "HNKSaveGameSubsystem.generated.h"
 
+class UHNKSaveGame_Player;
 class UHNKSaveGame_Session;
 class IHNKSaveableObjectInterface;
+
+UENUM(BlueprintType)
+enum EHNKSaveType : uint8
+{
+	ST_None,
+	ST_Player,
+	ST_Session
+};
 
 UCLASS()
 class HONK_API UHNKSaveGameSubsystem : public UGameInstanceSubsystem
@@ -21,15 +30,15 @@ public:
 	//~End USubsystem
 	
 	UFUNCTION(BlueprintCallable)
-	virtual bool TryLoadSession();
-	
-	UFUNCTION(BlueprintCallable)
-	virtual bool SaveSession();
+	virtual bool TrySavingDataToDisk(EHNKSaveType SaveType);
 
-	virtual void CreateNewSessionSaveGame();
+	UFUNCTION(BlueprintCallable)
+	virtual bool TryLoadingDataFromDisk(EHNKSaveType SaveType);
+	
+	virtual void CreateNewSaveGame(EHNKSaveType SaveType);
 
 	UFUNCTION(BlueprintPure)
-	UHNKSaveGame_Session* GetSessionSaveGameInstance() const;
+	UHNKSaveGame* GetSaveGameInstance(EHNKSaveType SaveType) const;
 	
 	UFUNCTION(BlueprintCallable, meta = (DefaultToSelf = "Object"))
 	virtual void SaveObject(UObject* Object);
@@ -38,6 +47,9 @@ public:
 	virtual void LoadObject(UObject* Object);
 	
 public:
+	UPROPERTY()
+	TObjectPtr<UHNKSaveGame_Player> PlayerSaveGameInstance;
+	
 	UPROPERTY()
 	TObjectPtr<UHNKSaveGame_Session> SessionSaveGameInstance;
 };

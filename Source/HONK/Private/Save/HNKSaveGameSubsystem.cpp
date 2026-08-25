@@ -3,45 +3,105 @@
 
 #include "Save/HNKSaveGameSubsystem.h"
 
-#include "Kismet/GameplayStatics.h"
+// HONK Includes
 #include "Save/HNKSaveableObjectInterface.h"
+#include "Save/HNKSaveGame_Player.h"
 #include "Save/HNKSaveGame_Session.h"
+
+// Engine Includes
+#include "Kismet/GameplayStatics.h"
 
 void UHNKSaveGameSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
 	Super::Initialize(Collection);
 	
-	if (!TryLoadSession())
+	if (!TryLoadingDataFromDisk(EHNKSaveType::ST_Player))
 	{
-		CreateNewSessionSaveGame();
+		CreateNewSaveGame(EHNKSaveType::ST_Player);
+	}
+	
+	if (!TryLoadingDataFromDisk(EHNKSaveType::ST_Session))
+	{
+		CreateNewSaveGame(EHNKSaveType::ST_Session);
 	}
 }
 
-bool UHNKSaveGameSubsystem::TryLoadSession()
+bool UHNKSaveGameSubsystem::TrySavingDataToDisk(EHNKSaveType SaveType)
 {
-	SessionSaveGameInstance = Cast<UHNKSaveGame_Session>(UGameplayStatics::LoadGameFromSlot(TEXT("Slot1"), 0));
-	
-	return IsValid(SessionSaveGameInstance);
-}
-
-bool UHNKSaveGameSubsystem::SaveSession()
-{
-	if (!SessionSaveGameInstance)
+	switch (SaveType)
 	{
-		return false;
+	case EHNKSaveType::ST_Player:
+		if (PlayerSaveGameInstance)
+		{
+			return UGameplayStatics::SaveGameToSlot(PlayerSaveGameInstance, TEXT("PlayerSlot1"), 0);
+		}
+		break;
+		
+	case EHNKSaveType::ST_Session:
+		if (SessionSaveGameInstance)
+		{
+			return UGameplayStatics::SaveGameToSlot(SessionSaveGameInstance, TEXT("SessionSlot1"), 0);
+		}
+		break;
+		
+	default:
+		break;
 	}
 	
-	return UGameplayStatics::SaveGameToSlot(SessionSaveGameInstance, TEXT("Slot1"), 0);
+	return false;
 }
 
-void UHNKSaveGameSubsystem::CreateNewSessionSaveGame()
+bool UHNKSaveGameSubsystem::TryLoadingDataFromDisk(EHNKSaveType SaveType)
 {
-	SessionSaveGameInstance = Cast<UHNKSaveGame_Session>(UGameplayStatics::CreateSaveGameObject(UHNKSaveGame_Session::StaticClass()));
+	switch (SaveType)
+	{
+	case EHNKSaveType::ST_Player:
+		PlayerSaveGameInstance = Cast<UHNKSaveGame_Player>(UGameplayStatics::LoadGameFromSlot(TEXT("PlayerSlot1"), 0));
+		return IsValid(PlayerSaveGameInstance);
+		
+	case EHNKSaveType::ST_Session:
+		SessionSaveGameInstance = Cast<UHNKSaveGame_Session>(UGameplayStatics::LoadGameFromSlot(TEXT("SessionSlot1"), 0));
+		return IsValid(SessionSaveGameInstance);
+		
+	default:
+		break;
+	}
+	
+	return false;
 }
 
-UHNKSaveGame_Session* UHNKSaveGameSubsystem::GetSessionSaveGameInstance() const
+void UHNKSaveGameSubsystem::CreateNewSaveGame(EHNKSaveType SaveType)
 {
-	return SessionSaveGameInstance;
+	switch (SaveType)
+	{
+	case EHNKSaveType::ST_Player:
+		PlayerSaveGameInstance = Cast<UHNKSaveGame_Player>(UGameplayStatics::CreateSaveGameObject(UHNKSaveGame_Player::StaticClass()));
+		break;
+		
+	case EHNKSaveType::ST_Session:
+		SessionSaveGameInstance = Cast<UHNKSaveGame_Session>(UGameplayStatics::CreateSaveGameObject(UHNKSaveGame_Session::StaticClass()));
+		break;
+		
+	default:
+		break;
+	}
+}
+
+UHNKSaveGame* UHNKSaveGameSubsystem::GetSaveGameInstance(EHNKSaveType SaveType) const
+{
+	switch (SaveType)
+	{
+	case EHNKSaveType::ST_Player:
+		return PlayerSaveGameInstance;
+		
+	case EHNKSaveType::ST_Session:
+		return SessionSaveGameInstance;
+		
+	default:
+		break;
+	}
+	
+	return nullptr;
 }
 
 void UHNKSaveGameSubsystem::SaveObject(UObject* Object)
