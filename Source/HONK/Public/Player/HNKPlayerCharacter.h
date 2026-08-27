@@ -42,6 +42,8 @@ class HONK_API AHNKPlayerCharacter : public AHNKCharacter
 public:
 	AHNKPlayerCharacter(const FObjectInitializer& ObjectInitializer);
 	
+	virtual void Tick(float DeltaSeconds) override;
+	
 	//~Begin AActor
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	//~End AActor
@@ -96,7 +98,10 @@ protected:
 	UFUNCTION()
 	void OnRep_PlayerCosmetics();
 	
+	UFUNCTION(BlueprintCallable)
 	virtual void ApplyPlayerCosmetics(const FHNKPlayerCosmeticsData& InPlayerCosmetics);
+	UFUNCTION(BlueprintImplementableEvent)
+	void BP_ApplyPlayerCosmetics(const FHNKPlayerCosmeticsData& InPlayerCosmetics);
 	
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
@@ -125,22 +130,4 @@ protected:
 	
 	UPROPERTY(ReplicatedUsing=OnRep_PlayerCosmetics, EditAnywhere, BlueprintReadOnly, Category=Cosmetics)
 	FHNKPlayerCosmeticsData PlayerCosmetics;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Cosmetics)
-	TObjectPtr<USkeletalMesh> TEMP_JesterHatHairMesh;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Cosmetics)
-	TSubclassOf<UAnimInstance> TEMP_JesterHatAnimInstance;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Cosmetics)
-	TObjectPtr<USkeletalMesh> TEMP_PompadourHairMesh;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Cosmetics)
-	TSubclassOf<UAnimInstance> TEMP_PompadourAnimInstance;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Cosmetics)
-	TObjectPtr<USkeletalMesh> TEMP_FeminineBodyMesh;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Cosmetics)
-	TObjectPtr<USkeletalMesh> TEMP_MasculineBodyMesh;
 };

@@ -14,12 +14,20 @@
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Net/UnrealNetwork.h"
+#include "PhysicsEngine/PhysicsAsset.h"
 
 AHNKPlayerCharacter::AHNKPlayerCharacter(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
 	HairMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("HairMesh"));
 	HairMesh->SetupAttachment(GetMesh());
+}
+
+void AHNKPlayerCharacter::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+	
+	//UE_LOG(LogTemp, Warning, TEXT("Physics Asset: %s"), *GetMesh()->GetPhysicsAsset()->GetName());
 }
 
 void AHNKPlayerCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -209,23 +217,5 @@ void AHNKPlayerCharacter::OnRep_PlayerCosmetics()
 
 void AHNKPlayerCharacter::ApplyPlayerCosmetics(const FHNKPlayerCosmeticsData& InPlayerCosmetics)
 {
-	if (PlayerCosmetics.HairType == HNKGameplayTags::Cosmetic_Hair_JongleurHatF)
-	{
-		HairMesh->SetSkeletalMesh(TEMP_JesterHatHairMesh);
-		HairMesh->SetAnimInstanceClass(TEMP_JesterHatAnimInstance);
-	}
-	else
-	{
-		HairMesh->SetSkeletalMesh(TEMP_PompadourHairMesh);
-		HairMesh->SetAnimInstanceClass(TEMP_PompadourAnimInstance);
-	}
-	
-	if (PlayerCosmetics.BodyType == HNKGameplayTags::Cosmetic_Body_Feminine)
-	{
-		GetMesh()->SetSkeletalMesh(TEMP_FeminineBodyMesh);
-	}
-	else
-	{
-		GetMesh()->SetSkeletalMesh(TEMP_MasculineBodyMesh);
-	}
+	BP_ApplyPlayerCosmetics(InPlayerCosmetics);
 }

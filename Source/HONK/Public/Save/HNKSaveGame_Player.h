@@ -18,11 +18,23 @@ struct FHNKPlayerCosmeticsData
 	GENERATED_BODY()
 	
 public:
-	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (Categories="Cosmetic.Body"))
+	FGameplayTag BodyType = HNKGameplayTags::Cosmetic_Body_Feminine;
+	
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (Categories="Cosmetic.Hair"))
 	FGameplayTag HairType = HNKGameplayTags::Cosmetic_Hair_JongleurHatF;
 	
-	UPROPERTY(BlueprintReadWrite, EditAnywhere)
-	FGameplayTag BodyType = HNKGameplayTags::Cosmetic_Body_Feminine;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (Categories="Cosmetic.HairColor"))
+	FGameplayTag HairColor = HNKGameplayTags::Cosmetic_HairColor_Blue;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (Categories="Cosmetic.Eyes"))
+	FGameplayTag EyesType = HNKGameplayTags::Cosmetic_Eyes_1F;
+	
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (Categories="Cosmetic.EyeColor"))
+	FGameplayTag EyeColor = HNKGameplayTags::Cosmetic_EyeColor_Pink1;
+	
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (Categories="Cosmetic.Mouth"))
+	FGameplayTag MouthType = HNKGameplayTags::Cosmetic_Mouth_1F;
 };
 
 UCLASS()
