@@ -4,12 +4,11 @@
 #include "GAS/Effect/HNKDamageCalc.h"
 #include "Gameplay/HNKDamageableInterface.h"
 #include "Gameplay/HNKDamageTypes.h"
-#include "GAS/Attribute/HNKDamageableAttributeSet.h"
+#include "GAS/Attribute/HNKHealthAttributeSet.h"
 
 // Declare the attributes to capture and define how we want to capture them from the Source and Target.
 struct FHNKDamageStatics
 {
-	DECLARE_ATTRIBUTE_CAPTUREDEF(Armor);
 	DECLARE_ATTRIBUTE_CAPTUREDEF(Damage);
 	DECLARE_ATTRIBUTE_CAPTUREDEF(Health);
 	DECLARE_ATTRIBUTE_CAPTUREDEF(MaxHealth);
@@ -21,12 +20,10 @@ struct FHNKDamageStatics
 		// We're not capturing anything from the Source in this example, but there could be like AttackPower attributes that you might want.
 
 		// Capture optional Damage set on the damage GE as a CalculationModifier under the ExecutionCalculation
-		DEFINE_ATTRIBUTE_CAPTUREDEF(UHNKDamageableAttributeSet, Damage, Source, true);
+		DEFINE_ATTRIBUTE_CAPTUREDEF(UHNKHealthAttributeSet, Damage, Source, true);
 
-		// Capture the Target's Armor. Don't snapshot.
-		DEFINE_ATTRIBUTE_CAPTUREDEF(UHNKDamageableAttributeSet, Armor, Target, false);
-		DEFINE_ATTRIBUTE_CAPTUREDEF(UHNKDamageableAttributeSet, Health, Target, false);
-		DEFINE_ATTRIBUTE_CAPTUREDEF(UHNKDamageableAttributeSet, MaxHealth, Target, false);
+		DEFINE_ATTRIBUTE_CAPTUREDEF(UHNKHealthAttributeSet, Health, Target, false);
+		DEFINE_ATTRIBUTE_CAPTUREDEF(UHNKHealthAttributeSet, MaxHealth, Target, false);
 	}
 };
 
@@ -39,11 +36,9 @@ static const FHNKDamageStatics& DamageStatics()
 UHNKDamageCalc::UHNKDamageCalc()
 {
 	RelevantAttributesToCapture.Add(DamageStatics().DamageDef);
-	RelevantAttributesToCapture.Add(DamageStatics().ArmorDef);
 }
 
-void UHNKDamageCalc::Execute_Implementation(const FGameplayEffectCustomExecutionParameters& ExecutionParams,
-	FGameplayEffectCustomExecutionOutput& OutExecutionOutput) const
+void UHNKDamageCalc::Execute_Implementation(const FGameplayEffectCustomExecutionParameters& ExecutionParams, FGameplayEffectCustomExecutionOutput& OutExecutionOutput) const
 {
 	UAbilitySystemComponent* TargetAbilitySystemComponent = ExecutionParams.GetTargetAbilitySystemComponent();
 	UAbilitySystemComponent* SourceAbilitySystemComponent = ExecutionParams.GetSourceAbilitySystemComponent();
@@ -62,10 +57,6 @@ void UHNKDamageCalc::Execute_Implementation(const FGameplayEffectCustomExecution
 	EvaluationParameters.SourceTags = SourceTags;
 	EvaluationParameters.TargetTags = TargetTags;
 
-	float Armor = 0.0f;
-	ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(DamageStatics().ArmorDef, EvaluationParameters, Armor);
-	Armor = FMath::Max<float>(Armor, 0.0f);
-
 	float Damage = 0.0f;
 	// Capture optional damage value set on the damage GE as a CalculationModifier under the ExecutionCalculation
 	ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(DamageStatics().DamageDef, EvaluationParameters, Damage);
@@ -74,7 +65,7 @@ void UHNKDamageCalc::Execute_Implementation(const FGameplayEffectCustomExecution
 
 	float UnmitigatedDamage = Damage; // Can multiply any damage boosters here
 	
-	float MitigatedDamage = (UnmitigatedDamage) * (100 / (100 + Armor));
+	float MitigatedDamage = UnmitigatedDamage;
 
 	if (MitigatedDamage > 0.f)
 	{
@@ -87,8 +78,8 @@ void UHNKDamageCalc::Execute_Implementation(const FGameplayEffectCustomExecution
 		if (IHNKDamageableInterface* TargetDamageableInterface = Cast<IHNKDamageableInterface>(TargetOwner))
 		{
 			FHNKDamagePacket DamagePacket;
-			DamagePacket.DamagedObject = TargetAbilitySystemComponent->GetAvatarActor();
-			DamagePacket.DamagerObject = SourceAbilitySystemComponent->GetAvatarActor();
+			DamagePacket.DamageCauser = SourceAbilitySystemComponent->GetAvatarActor();
+			DamagePacket.DamageSource = TargetAbilitySystemComponent->GetAvatarActor();
 			DamagePacket.DamageAmount = MitigatedDamage;
 			DamagePacket.HitResult = HitResult;
 			TargetDamageableInterface->DamageTaken(DamagePacket);

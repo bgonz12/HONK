@@ -8,6 +8,7 @@
 #include "Character/HNKCharacterMovementComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "GAS/Attribute/HNKHealthAttributeSet.h"
 #include "Player/HNKPlayerStateBase.h"
 
 AHNKCharacter::AHNKCharacter(const FObjectInitializer& ObjectInitializer)
@@ -15,6 +16,9 @@ AHNKCharacter::AHNKCharacter(const FObjectInitializer& ObjectInitializer)
 {
 	PrimaryActorTick.bCanEverTick = true;
 	
+	// Lower the default NetUpdateFrequency because 100 is actually insane
+	SetNetUpdateFrequency(30.f);
+
 	AbilitySystemComponent = CreateDefaultSubobject<UAbilitySystemComponent>(TEXT("AbilitySystemComponent"));
 	AbilitySystemComponent->SetIsReplicated(true);
 	AbilitySystemComponent->SetReplicationMode(AscReplicationMode);
@@ -37,17 +41,40 @@ AHNKCharacter::AHNKCharacter(const FObjectInitializer& ObjectInitializer)
 	GetCharacterMovement()->MinAnalogWalkSpeed = 20.f;
 	GetCharacterMovement()->BrakingDecelerationWalking = 2000.f;
 	GetCharacterMovement()->BrakingDecelerationFalling = 1500.f;
+	
+	// Setup attribute sets
+	HealthAttributeSet = CreateDefaultSubobject<UHNKHealthAttributeSet>(TEXT("HealthAttributeSet"));
+}
+
+void AHNKCharacter::BeginPlay()
+{
+	Super::BeginPlay();
+	
+	if (HasAuthority())
+	{
+		InitializeAbilitySystem();
+		InitializeAttributes();
+	}
 }
 
 void AHNKCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
-
 }
 
 UAbilitySystemComponent* AHNKCharacter::GetAbilitySystemComponent() const
 {
 	return AbilitySystemComponent;
+}
+
+void AHNKCharacter::InitializeAbilitySystem()
+{
+	UAbilitySystemComponent* ASC = GetAbilitySystemComponent();
+	if (IsValid(ASC))
+	{
+		ASC->InitAbilityActorInfo(this, this);
+		HealthAttributeSet = ASC->GetSet<UHNKHealthAttributeSet>();
+	}
 }
 
 void AHNKCharacter::InitializeAttributes()
@@ -109,8 +136,6 @@ void AHNKCharacter::HandlePlayerStateReady()
 	{
 		if (AHNKPlayerStateBase* MyPlayerState = GetPlayerState<AHNKPlayerStateBase>())
 		{
-			//MyPlayerState->InitAbilitySystem();
-			//InitializeAttributes();
 		}
 	}
 }

@@ -13,7 +13,7 @@
 #include "HNKPlayerPawn.generated.h"
 
 class UCameraComponent;
-class UHNKDamageableAttributeSet;
+class UHNKHealthAttributeSet;
 class UInputAction;
 class USpringArmComponent;
 struct FInputActionValue;
@@ -38,11 +38,10 @@ public:
 	/** IAbilitySystemInterface */
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 
-	void InitAbilitySystem();
-	virtual void InitAttributes();
+	virtual void InitializeAbilitySystem();
+	virtual void InitializeAttributes();
 
 	/** IHNKDamageableInterface */
-	virtual void DamageTaken(FHNKDamagePacket& DamagePacket) override;
 	virtual float GetHealth() const override;
 	virtual float GetMaxHealth() const override;
 	
@@ -65,7 +64,7 @@ protected:
 	TObjectPtr<UCameraComponent>CameraComponent;
 	
 	UPROPERTY()
-	const UHNKDamageableAttributeSet* DamageableAttributeSet;
+	const UHNKHealthAttributeSet* DamageableAttributeSet;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AbilitySystem")
 	EGameplayEffectReplicationMode AscReplicationMode = EGameplayEffectReplicationMode::Mixed;

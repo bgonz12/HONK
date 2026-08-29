@@ -7,7 +7,6 @@
 #include "GameplayTagContainer.h"
 
 // HONK Includes
-#include "GAS/HNKGameplayTags.h"
 #include "Save/HNKSaveGame.h"
 
 #include "HNKSaveGame_Player.generated.h"
@@ -19,22 +18,32 @@ struct FHNKPlayerCosmeticsData
 	
 public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (Categories="Cosmetic.Body"))
-	FGameplayTag BodyType = HNKGameplayTags::Cosmetic_Body_Feminine;
+	FGameplayTag BodyType;
 	
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (Categories="Cosmetic.Hair"))
-	FGameplayTag HairType = HNKGameplayTags::Cosmetic_Hair_JongleurHatF;
+	FGameplayTag HairType;
 	
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (Categories="Cosmetic.HairColor"))
-	FGameplayTag HairColor = HNKGameplayTags::Cosmetic_HairColor_Blue;
+	FGameplayTag HairColor;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (Categories="Cosmetic.Eyes"))
-	FGameplayTag EyesType = HNKGameplayTags::Cosmetic_Eyes_1F;
+	FGameplayTag EyesType;
 	
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (Categories="Cosmetic.EyeColor"))
-	FGameplayTag EyeColor = HNKGameplayTags::Cosmetic_EyeColor_Pink1;
+	FGameplayTag EyeColor;
 	
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (Categories="Cosmetic.Mouth"))
-	FGameplayTag MouthType = HNKGameplayTags::Cosmetic_Mouth_1F;
+	FGameplayTag MouthType;
+	
+	bool IsValid() const
+	{
+		return BodyType.IsValid() 
+			&& HairType.IsValid() 
+			&& HairColor.IsValid() 
+			&& EyesType.IsValid()
+			&& EyeColor.IsValid() 
+			&& MouthType.IsValid();
+	}
 };
 
 UCLASS()

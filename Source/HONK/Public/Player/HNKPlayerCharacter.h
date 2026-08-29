@@ -42,8 +42,6 @@ class HONK_API AHNKPlayerCharacter : public AHNKCharacter
 public:
 	AHNKPlayerCharacter(const FObjectInitializer& ObjectInitializer);
 	
-	virtual void Tick(float DeltaSeconds) override;
-	
 	//~Begin AActor
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	//~End AActor
@@ -128,6 +126,9 @@ protected:
 	
 	FTimerHandle RagdollRecoverTimerHandle;
 	
-	UPROPERTY(ReplicatedUsing=OnRep_PlayerCosmetics, EditAnywhere, BlueprintReadOnly, Category=Cosmetics)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category=Cosmetics)
+	FHNKPlayerCosmeticsData DefaultPlayerCosmetics;
+	
+	UPROPERTY(ReplicatedUsing=OnRep_PlayerCosmetics, VisibleInstanceOnly, BlueprintReadOnly, Category=Cosmetics)
 	FHNKPlayerCosmeticsData PlayerCosmetics;
 };

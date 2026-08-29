@@ -3,9 +3,19 @@
 // HONK Includes
 #include "Gameplay/HNKDamageableInterface.h"
 
-// Add default functionality here for any IHNKDamageableInterface functions that are not pure virtual.
+void IHNKDamageableInterface::ModifyDamage(FHNKDamagePacket& DamagePacket)
+{
+}
 
-void IHNKDamageableInterface::DamageTaken(FHNKDamagePacket& DamagePacket)
+void IHNKDamageableInterface::DamageTaken(const FHNKDamagePacket& DamagePacket)
+{
+}
+
+void IHNKDamageableInterface::DamageDealt(const FHNKDamagePacket& DamagePacket)
+{
+}
+
+void IHNKDamageableInterface::Died(const FHNKDamagePacket& DamagePacket)
 {
 }
 

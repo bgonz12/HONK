@@ -27,9 +27,14 @@ class HONK_API IHNKDamageableInterface
 
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
-	virtual void DamageTaken(FHNKDamagePacket& DamagePacket);
+	virtual void ModifyDamage(FHNKDamagePacket& DamagePacket);
 	
+	virtual void DamageTaken(const FHNKDamagePacket& DamagePacket);
+
+	virtual void DamageDealt(const FHNKDamagePacket& DamagePacket);
+
+	virtual void Died(const FHNKDamagePacket& DamagePacket);
+
 	virtual float GetHealth() const;
-	
 	virtual float GetMaxHealth() const;
 };

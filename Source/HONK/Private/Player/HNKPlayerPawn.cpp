@@ -8,7 +8,7 @@
 #include "Camera/CameraComponent.h"
 #include "DefaultMovementSet/CharacterMoverComponent.h"
 #include "GameFramework/SpringArmComponent.h"
-#include "GAS/Attribute/HNKDamageableAttributeSet.h"
+#include "GAS/Attribute/HNKHealthAttributeSet.h"
 #include "Pawn/HNKCharacterMoverComponent.h"
 #include "Player/HNKPlayerStateBase.h"
 
@@ -27,7 +27,7 @@ AHNKPlayerPawn::AHNKPlayerPawn()
 	CameraComponent->SetupAttachment(SpringArmComponent);
 	
 	// Setup attribute sets
-	DamageableAttributeSet = CreateDefaultSubobject<UHNKDamageableAttributeSet>(TEXT("DamageableAttributeSet"));
+	DamageableAttributeSet = CreateDefaultSubobject<UHNKHealthAttributeSet>(TEXT("DamageableAttributeSet"));
 }
 
 void AHNKPlayerPawn::BeginPlay()
@@ -36,8 +36,8 @@ void AHNKPlayerPawn::BeginPlay()
 	
 	if (HasAuthority())
 	{
-		InitAbilitySystem();
-		InitAttributes();
+		InitializeAbilitySystem();
+		InitializeAttributes();
 	}
 }
 
@@ -222,17 +222,17 @@ UAbilitySystemComponent* AHNKPlayerPawn::GetAbilitySystemComponent() const
 	return AbilitySystemComponent;
 }
 
-void AHNKPlayerPawn::InitAbilitySystem()
+void AHNKPlayerPawn::InitializeAbilitySystem()
 {
 	UAbilitySystemComponent* ASC = GetAbilitySystemComponent();
 	if (IsValid(ASC))
 	{
 		ASC->InitAbilityActorInfo(this, this);
-		DamageableAttributeSet = ASC->GetSet<UHNKDamageableAttributeSet>();
+		DamageableAttributeSet = ASC->GetSet<UHNKHealthAttributeSet>();
 	}
 }
 
-void AHNKPlayerPawn::InitAttributes()
+void AHNKPlayerPawn::InitializeAttributes()
 {
 	UAbilitySystemComponent* ASC = GetAbilitySystemComponent();
 	if (!IsValid(ASC))
@@ -255,10 +255,6 @@ void AHNKPlayerPawn::InitAttributes()
 	{
 		FActiveGameplayEffectHandle ActiveGEHandle = ASC->ApplyGameplayEffectSpecToSelf(*NewHandle.Data.Get());
 	}
-}
-
-void AHNKPlayerPawn::DamageTaken(FHNKDamagePacket& DamagePacket)
-{
 }
 
 float AHNKPlayerPawn::GetHealth() const

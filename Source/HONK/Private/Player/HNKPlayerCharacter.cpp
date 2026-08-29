@@ -16,18 +16,10 @@
 #include "Net/UnrealNetwork.h"
 #include "PhysicsEngine/PhysicsAsset.h"
 
-AHNKPlayerCharacter::AHNKPlayerCharacter(const FObjectInitializer& ObjectInitializer)
-	: Super(ObjectInitializer)
+AHNKPlayerCharacter::AHNKPlayerCharacter(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
 	HairMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("HairMesh"));
 	HairMesh->SetupAttachment(GetMesh());
-}
-
-void AHNKPlayerCharacter::Tick(float DeltaSeconds)
-{
-	Super::Tick(DeltaSeconds);
-	
-	//UE_LOG(LogTemp, Warning, TEXT("Physics Asset: %s"), *GetMesh()->GetPhysicsAsset()->GetName());
 }
 
 void AHNKPlayerCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -182,10 +174,13 @@ void AHNKPlayerCharacter::OnRep_RagdollProperties()
 
 void AHNKPlayerCharacter::TryInitPlayerCosmetics()
 {
-	if (!IsLocallyControlled())
+	APlayerController* PC = Cast<APlayerController>(GetController());
+	if (!PC || !PC->IsLocalPlayerController())
 	{
 		return;
 	}
+
+	UKismetSystemLibrary::PrintString(this, FString("TryInitPlayerCosmetics"));
 	
 	if (UGameInstance* GameInstance = UGameplayStatics::GetGameInstance(GetWorld()))
 	{
@@ -193,7 +188,14 @@ void AHNKPlayerCharacter::TryInitPlayerCosmetics()
 		{
 			if (const UHNKSaveGame_Player* PlayerSaveGame = Cast<UHNKSaveGame_Player>(SaveGameSubsystem->GetSaveGameInstance(EHNKSaveType::ST_Player)))
 			{
-				Server_SetPlayerCosmetics(PlayerSaveGame->PlayerCosmetics);
+				if (PlayerSaveGame->PlayerCosmetics.IsValid())
+				{
+					Server_SetPlayerCosmetics(PlayerSaveGame->PlayerCosmetics);
+				}
+				else
+				{
+					Server_SetPlayerCosmetics(DefaultPlayerCosmetics);
+				}
 			}
 		}
 	}
@@ -206,16 +208,22 @@ void AHNKPlayerCharacter::Server_SetPlayerCosmetics_Implementation(const FHNKPla
 
 void AHNKPlayerCharacter::SetPlayerCosmetics(const FHNKPlayerCosmeticsData& InPlayerCosmetics)
 {
+	//UKismetSystemLibrary::PrintString(this, FString("SetPlayerCosmetics"));
+	
 	PlayerCosmetics = InPlayerCosmetics;
 	OnRep_PlayerCosmetics();
 }
 
 void AHNKPlayerCharacter::OnRep_PlayerCosmetics()
 {
+	UKismetSystemLibrary::PrintString(this, FString("OnRep_PlayerCosmetics"));
+
 	ApplyPlayerCosmetics(PlayerCosmetics);
 }
 
 void AHNKPlayerCharacter::ApplyPlayerCosmetics(const FHNKPlayerCosmeticsData& InPlayerCosmetics)
 {
+	//UKismetSystemLibrary::PrintString(this, FString("ApplyPlayerCosmetics"));
+	
 	BP_ApplyPlayerCosmetics(InPlayerCosmetics);
 }

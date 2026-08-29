@@ -15,6 +15,7 @@
 
 class UAbilitySystemComponent;
 class UGameplayEffect;
+class UHNKHealthAttributeSet;
 class UInputComponent;
 
 UCLASS()
@@ -25,12 +26,17 @@ class HONK_API AHNKCharacter : public ACharacter, public IAbilitySystemInterface
 public:
 	AHNKCharacter(const FObjectInitializer& ObjectInitializer);
 
+	//~Begin AActor
+	virtual void BeginPlay() override;
+	//~End AActor
+	
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 
 	/** IAbilitySystemInterface */
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 
+	virtual void InitializeAbilitySystem();
 	virtual void InitializeAttributes();
 
 	//~Begin ACharacter
@@ -49,6 +55,9 @@ protected:
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="AbilitySystem")
 	TObjectPtr<UAbilitySystemComponent> AbilitySystemComponent;
+	
+	UPROPERTY()
+	const UHNKHealthAttributeSet* HealthAttributeSet;
 	
 	// Default attributes for a character for initializing on spawn/respawn.
 	// This is an instant GE that overrides the values for attributes that get reset on spawn/respawn.

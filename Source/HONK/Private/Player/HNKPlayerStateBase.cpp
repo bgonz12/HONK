@@ -1,6 +1,6 @@
 // HONK Includes
 #include "Player/HNKPlayerStateBase.h"
-#include "GAS/Attribute/HNKDamageableAttributeSet.h"
+#include "GAS/Attribute/HNKHealthAttributeSet.h"
 
 // Engine Includes
 #include "AbilitySystemComponent.h"
