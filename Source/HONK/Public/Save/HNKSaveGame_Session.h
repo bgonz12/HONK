@@ -37,5 +37,8 @@ public:
 	int32 CurrentDay = 0;
 	
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	TArray<UHNKItemDefinition*> UnlockedItems;
+	
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	TMap<FGuid, FHNKPlacedItemSaveData> PlacedItems;
 };

@@ -26,9 +26,24 @@ public:
 	//~End IHNKSaveableObjectInterface
 	
 	UFUNCTION(BlueprintCallable)
+	void SaveGame();
+	
+	UFUNCTION(BlueprintCallable)
+	void LoadGame();
+	
+	UFUNCTION(BlueprintCallable)
+	void UnlockItem(UHNKItemDefinition* InItemDef);
+	
+	UFUNCTION(BlueprintCallable)
 	void UpdatePlacedItemTransform(const FGuid& Guid, const FTransform& InTransform);
 	
 protected:
+	UPROPERTY(BlueprintReadWrite, VisibleAnywhere)
+	TArray<UHNKItemDefinition*> UnlockedItems;
+	
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	bool bOverrideUnlockedItems = false;
+	
 	UPROPERTY(BlueprintReadWrite, VisibleAnywhere)
 	TMap<FGuid, FHNKPlacedItemData> PlacedItems;
 };

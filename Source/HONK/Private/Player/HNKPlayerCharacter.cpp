@@ -3,7 +3,6 @@
 #include "Player/HNKPlayerCharacter.h"
 
 // HONK Includes
-#include "GAS/HNKGameplayTags.h"
 #include "Save/HNKSaveGame_Player.h"
 #include "Save/HNKSaveGameSubsystem.h"
 
@@ -14,7 +13,6 @@
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Net/UnrealNetwork.h"
-#include "PhysicsEngine/PhysicsAsset.h"
 
 AHNKPlayerCharacter::AHNKPlayerCharacter(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
@@ -179,8 +177,6 @@ void AHNKPlayerCharacter::TryInitPlayerCosmetics()
 	{
 		return;
 	}
-
-	UKismetSystemLibrary::PrintString(this, FString("TryInitPlayerCosmetics"));
 	
 	if (UGameInstance* GameInstance = UGameplayStatics::GetGameInstance(GetWorld()))
 	{

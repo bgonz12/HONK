@@ -1,13 +1,16 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "Game/Escape/HNKGameMode_Escape.h"
 
 // HONK Includes
 #include "Game/Escape/HNKGameState_Escape.h"
 #include "Inventory/Item/HNKItemDefinition.h"
 #include "Inventory/Item/HNKItemDrop.h"
+#include "Save/HNKSaveGameSubsystem.h"
 #include "Save/HNKSaveGame_Session.h"
+
+// Engine Includes
+#include "Kismet/GameplayStatics.h"
 
 void AHNKGameMode_Escape::SaveObject(USaveGame* SaveGame)
 {
@@ -18,6 +21,11 @@ void AHNKGameMode_Escape::SaveObject(USaveGame* SaveGame)
 	
 	if (UHNKSaveGame_Session* SessionSave = Cast<UHNKSaveGame_Session>(SaveGame))
 	{
+		if (!bOverrideUnlockedItems)
+		{
+			SessionSave->UnlockedItems = UnlockedItems;
+		}
+		
 		for (TPair<FGuid, FHNKPlacedItemData> PlacedItem : PlacedItems)
 		{
 			const FGuid& Key = PlacedItem.Key;
@@ -55,6 +63,11 @@ void AHNKGameMode_Escape::LoadObject(USaveGame* SaveGame)
 	
 	if (UHNKSaveGame_Session* SessionSave = Cast<UHNKSaveGame_Session>(SaveGame))
 	{
+		if (!bOverrideUnlockedItems)
+		{
+			UnlockedItems = SessionSave->UnlockedItems;
+		}
+		
 		FActorSpawnParameters SpawnParams;
 		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 			
@@ -93,6 +106,38 @@ void AHNKGameMode_Escape::LoadObject(USaveGame* SaveGame)
 	{
 		EscapeGameState->LoadObject(SaveGame);
 	}
+}
+
+
+void AHNKGameMode_Escape::SaveGame()
+{
+	if (UGameInstance* GameInstance = UGameplayStatics::GetGameInstance(GetWorld()))
+	{
+		if (UHNKSaveGameSubsystem* SaveGameSubsystem = GameInstance->GetSubsystem<UHNKSaveGameSubsystem>())
+		{
+			SaveGameSubsystem->SaveObject(this);
+			SaveGameSubsystem->TrySavingDataToDisk(EHNKSaveType::ST_Session);
+		}
+	}
+}
+
+void AHNKGameMode_Escape::LoadGame()
+{
+	if (UGameInstance* GameInstance = UGameplayStatics::GetGameInstance(GetWorld()))
+	{
+		if (UHNKSaveGameSubsystem* SaveGameSubsystem = GameInstance->GetSubsystem<UHNKSaveGameSubsystem>())
+		{
+			SaveGameSubsystem->LoadObject(this);
+		}
+	}
+}
+
+void AHNKGameMode_Escape::UnlockItem(UHNKItemDefinition* InItemDef)
+{
+	if (!UnlockedItems.Contains(InItemDef))
+	{
+		UnlockedItems.Add(InItemDef);
+	}	
 }
 
 void AHNKGameMode_Escape::UpdatePlacedItemTransform(const FGuid& Guid, const FTransform& InTransform)
