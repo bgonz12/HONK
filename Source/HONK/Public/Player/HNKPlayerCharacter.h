@@ -101,6 +101,8 @@ protected:
 	UFUNCTION(BlueprintImplementableEvent)
 	void BP_ApplyPlayerCosmetics(const FHNKPlayerCosmeticsData& InPlayerCosmetics);
 	
+	void SanitizePlayerCosmetics(FHNKPlayerCosmeticsData& InPlayerCosmetics);
+	
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TObjectPtr<USkeletalMeshComponent> HairMesh;

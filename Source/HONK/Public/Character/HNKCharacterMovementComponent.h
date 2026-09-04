@@ -2,8 +2,10 @@
 
 #pragma once
 
+// Engine Includes
 #include "CoreMinimal.h"
 #include "GameFramework/CharacterMovementComponent.h"
+
 #include "HNKCharacterMovementComponent.generated.h"
 
 /**

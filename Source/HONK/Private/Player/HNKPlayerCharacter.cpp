@@ -182,16 +182,14 @@ void AHNKPlayerCharacter::TryInitPlayerCosmetics()
 	{
 		if (UHNKSaveGameSubsystem* SaveGameSubsystem = GameInstance->GetSubsystem<UHNKSaveGameSubsystem>())
 		{
-			if (const UHNKSaveGame_Player* PlayerSaveGame = Cast<UHNKSaveGame_Player>(SaveGameSubsystem->GetSaveGameInstance(EHNKSaveType::ST_Player)))
+			if (UHNKSaveGame_Player* PlayerSaveGame = Cast<UHNKSaveGame_Player>(SaveGameSubsystem->GetSaveGameInstance(EHNKSaveType::ST_Player)))
 			{
-				if (PlayerSaveGame->PlayerCosmetics.IsValid())
+				if (!PlayerSaveGame->PlayerCosmetics.IsValid())
 				{
-					Server_SetPlayerCosmetics(PlayerSaveGame->PlayerCosmetics);
+					SanitizePlayerCosmetics(PlayerSaveGame->PlayerCosmetics);
 				}
-				else
-				{
-					Server_SetPlayerCosmetics(DefaultPlayerCosmetics);
-				}
+				
+				Server_SetPlayerCosmetics(PlayerSaveGame->PlayerCosmetics);
 			}
 		}
 	}
@@ -204,22 +202,49 @@ void AHNKPlayerCharacter::Server_SetPlayerCosmetics_Implementation(const FHNKPla
 
 void AHNKPlayerCharacter::SetPlayerCosmetics(const FHNKPlayerCosmeticsData& InPlayerCosmetics)
 {
-	//UKismetSystemLibrary::PrintString(this, FString("SetPlayerCosmetics"));
-	
 	PlayerCosmetics = InPlayerCosmetics;
 	OnRep_PlayerCosmetics();
 }
 
 void AHNKPlayerCharacter::OnRep_PlayerCosmetics()
 {
-	UKismetSystemLibrary::PrintString(this, FString("OnRep_PlayerCosmetics"));
-
 	ApplyPlayerCosmetics(PlayerCosmetics);
 }
 
 void AHNKPlayerCharacter::ApplyPlayerCosmetics(const FHNKPlayerCosmeticsData& InPlayerCosmetics)
 {
-	//UKismetSystemLibrary::PrintString(this, FString("ApplyPlayerCosmetics"));
-	
 	BP_ApplyPlayerCosmetics(InPlayerCosmetics);
+}
+
+void AHNKPlayerCharacter::SanitizePlayerCosmetics(FHNKPlayerCosmeticsData& InPlayerCosmetics)
+{
+	if (!InPlayerCosmetics.BodyType.IsValid())
+	{
+		InPlayerCosmetics.BodyType = DefaultPlayerCosmetics.BodyType;
+	}
+	
+	if (!InPlayerCosmetics.HairType.IsValid())
+	{
+		InPlayerCosmetics.HairType = DefaultPlayerCosmetics.HairType;
+	}
+	
+	if (!InPlayerCosmetics.HairColor.IsValid())
+	{
+		InPlayerCosmetics.HairColor = DefaultPlayerCosmetics.HairColor;
+	}
+
+	if (!InPlayerCosmetics.EyesType.IsValid())
+	{
+		InPlayerCosmetics.EyesType = DefaultPlayerCosmetics.EyesType;
+	}
+	
+	if (!InPlayerCosmetics.EyeColor.IsValid())
+	{
+		InPlayerCosmetics.EyeColor = DefaultPlayerCosmetics.EyeColor;
+	}
+	
+	if (!InPlayerCosmetics.MouthType.IsValid())
+	{
+		InPlayerCosmetics.MouthType = DefaultPlayerCosmetics.MouthType;
+	}
 }
