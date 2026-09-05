@@ -216,35 +216,35 @@ void AHNKPlayerCharacter::ApplyPlayerCosmetics(const FHNKPlayerCosmeticsData& In
 	BP_ApplyPlayerCosmetics(InPlayerCosmetics);
 }
 
-void AHNKPlayerCharacter::SanitizePlayerCosmetics(FHNKPlayerCosmeticsData& InPlayerCosmetics)
+void AHNKPlayerCharacter::SanitizePlayerCosmetics(FHNKPlayerCosmeticsData& InOutPlayerCosmetics) const
 {
-	if (!InPlayerCosmetics.BodyType.IsValid())
+	if (!InOutPlayerCosmetics.BodyType.IsValid())
 	{
-		InPlayerCosmetics.BodyType = DefaultPlayerCosmetics.BodyType;
+		InOutPlayerCosmetics.BodyType = DefaultPlayerCosmetics.BodyType;
 	}
 	
-	if (!InPlayerCosmetics.HairType.IsValid())
+	if (!InOutPlayerCosmetics.HairType.IsValid())
 	{
-		InPlayerCosmetics.HairType = DefaultPlayerCosmetics.HairType;
+		InOutPlayerCosmetics.HairType = DefaultPlayerCosmetics.HairType;
 	}
 	
-	if (!InPlayerCosmetics.HairColor.IsValid())
+	if (!InOutPlayerCosmetics.HairColor.IsValid())
 	{
-		InPlayerCosmetics.HairColor = DefaultPlayerCosmetics.HairColor;
+		InOutPlayerCosmetics.HairColor = DefaultPlayerCosmetics.HairColor;
 	}
 
-	if (!InPlayerCosmetics.EyesType.IsValid())
+	if (!InOutPlayerCosmetics.EyesType.IsValid())
 	{
-		InPlayerCosmetics.EyesType = DefaultPlayerCosmetics.EyesType;
+		InOutPlayerCosmetics.EyesType = DefaultPlayerCosmetics.EyesType;
 	}
 	
-	if (!InPlayerCosmetics.EyeColor.IsValid())
+	if (!InOutPlayerCosmetics.EyeColor.IsValid())
 	{
-		InPlayerCosmetics.EyeColor = DefaultPlayerCosmetics.EyeColor;
+		InOutPlayerCosmetics.EyeColor = DefaultPlayerCosmetics.EyeColor;
 	}
 	
-	if (!InPlayerCosmetics.MouthType.IsValid())
+	if (!InOutPlayerCosmetics.MouthType.IsValid())
 	{
-		InPlayerCosmetics.MouthType = DefaultPlayerCosmetics.MouthType;
+		InOutPlayerCosmetics.MouthType = DefaultPlayerCosmetics.MouthType;
 	}
 }

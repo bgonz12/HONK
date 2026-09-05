@@ -101,7 +101,7 @@ protected:
 	UFUNCTION(BlueprintImplementableEvent)
 	void BP_ApplyPlayerCosmetics(const FHNKPlayerCosmeticsData& InPlayerCosmetics);
 	
-	void SanitizePlayerCosmetics(FHNKPlayerCosmeticsData& InPlayerCosmetics);
+	void SanitizePlayerCosmetics(FHNKPlayerCosmeticsData& InOutPlayerCosmetics) const;
 	
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
