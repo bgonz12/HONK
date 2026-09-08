@@ -15,4 +15,6 @@ class HONK_API UHNKGameplayStatics : public UBlueprintFunctionLibrary
 public:
 	UFUNCTION(BlueprintCallable)
 	static bool TryRequestGameplayTag(const FName& TagName, FGameplayTag& OutTag);
+	
+	static int32 AbilityTagToInputID(const FGameplayTag& AbilityTag);
 };

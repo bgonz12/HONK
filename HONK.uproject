@@ -13,7 +13,8 @@
 				"ChaosMover",
 				"CoreUObject",
 				"GameplayAbilities",
-				"Mover"
+				"Mover",
+				"EnhancedInput"
 			]
 		}
 	],

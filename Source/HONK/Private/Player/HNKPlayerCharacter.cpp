@@ -3,6 +3,7 @@
 #include "Player/HNKPlayerCharacter.h"
 
 // HONK Includes
+#include "Gameplay/HNKGameplayStatics.h"
 #include "Save/HNKSaveGame_Player.h"
 #include "Save/HNKSaveGameSubsystem.h"
 
@@ -48,6 +49,16 @@ void AHNKPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInput
 	
 	if (UEnhancedInputComponent* Input = Cast<UEnhancedInputComponent>(PlayerInputComponent))
 	{	
+		//void BindInputActions(const UInputConfigDataAsset* InputConfig, UserClass* Object, PressedFuncType PressedFunc, ReleasedFuncType ReleasedFunc)
+		for (const FHNKAbilityInputBinding& Binding : AbilityInputBindings)
+		{
+			if (Binding.InputAction && Binding.AbilityTag.IsValid())
+			{
+				Input->BindAction(Binding.InputAction, ETriggerEvent::Started, this, &AHNKPlayerCharacter::Input_AbilityPressed, Binding.AbilityTag);
+				Input->BindAction(Binding.InputAction, ETriggerEvent::Completed, this, &AHNKPlayerCharacter::Input_AbilityReleased, Binding.AbilityTag);
+			}
+		}
+		
 		Input->BindAction(MoveInputAction, ETriggerEvent::Triggered, this, &AHNKPlayerCharacter::Input_Move);
 		Input->BindAction(LookInputAction, ETriggerEvent::Triggered, this, &AHNKPlayerCharacter::Input_Look);
 		Input->BindAction(JumpInputAction, ETriggerEvent::Started, this, &AHNKPlayerCharacter::Input_JumpStarted);
@@ -64,6 +75,24 @@ bool AHNKPlayerCharacter::CanMove()
 bool AHNKPlayerCharacter::CanJump()
 {
 	return true;
+}
+
+void AHNKPlayerCharacter::Input_AbilityPressed(FGameplayTag AbilityTag)
+{
+	if (UAbilitySystemComponent* ASC = GetAbilitySystemComponent())
+	{
+		const int32 InputID = UHNKGameplayStatics::AbilityTagToInputID(AbilityTag);
+		ASC->AbilityLocalInputPressed(InputID);
+	}
+}
+
+void AHNKPlayerCharacter::Input_AbilityReleased(FGameplayTag AbilityTag)
+{
+	if (UAbilitySystemComponent* ASC = GetAbilitySystemComponent())
+	{
+		const int32 InputID = UHNKGameplayStatics::AbilityTagToInputID(AbilityTag);
+		ASC->AbilityLocalInputReleased(InputID);
+	}
 }
 
 void AHNKPlayerCharacter::Input_Move(const FInputActionValue& Value)

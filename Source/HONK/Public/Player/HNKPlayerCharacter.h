@@ -15,6 +15,19 @@ class UInputAction;
 struct FHNKPlayerCosmeticsData;
 struct FInputActionValue;
 
+USTRUCT(BlueprintType)
+struct FHNKAbilityInputBinding
+{
+	GENERATED_USTRUCT_BODY()
+
+public:
+	UPROPERTY(EditAnywhere, Category = BindInfo)
+	FGameplayTag AbilityTag;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	const UInputAction* InputAction = nullptr;
+};
+
 /**
  * Storing this in a struct to ensure clients receive all data when ragdoll state changes.
  */
@@ -60,6 +73,8 @@ protected:
 	
 	virtual bool CanJump();
 	
+	void Input_AbilityPressed(FGameplayTag AbilityTag);
+	void Input_AbilityReleased(FGameplayTag AbilityTag);
 	void Input_Move(const FInputActionValue& Value);
 	void Input_Look(const FInputActionValue& Value);
 	void Input_JumpStarted(const FInputActionValue& Value);
@@ -106,6 +121,9 @@ protected:
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TObjectPtr<USkeletalMeshComponent> HairMesh;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category=Input)
+	TArray<FHNKAbilityInputBinding> AbilityInputBindings;
 	
 	/** Move Input Action */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input)
