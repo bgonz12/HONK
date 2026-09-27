@@ -28,6 +28,7 @@ public:
 
 	//~Begin AActor
 	virtual void BeginPlay() override;
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 	//~End AActor
 	
 	// Called to bind functionality to input
@@ -52,6 +53,11 @@ protected:
 	
 	virtual void HandlePlayerStateReady();
 	
+	void AimingTagChanged(const FGameplayTag GameplayTag, int32 NewCount);
+	
+	UFUNCTION(BlueprintImplementableEvent)
+	void BP_AimingChanged();
+	
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="AbilitySystem")
 	TObjectPtr<UAbilitySystemComponent> AbilitySystemComponent;
@@ -69,4 +75,9 @@ protected:
 	
 	UPROPERTY()
 	bool bWasLaunched = false;
+	
+	UPROPERTY(BlueprintReadOnly)	
+	bool bIsAiming = false;
+	
+	FDelegateHandle AimingTagChangedDelegateHandle;
 };

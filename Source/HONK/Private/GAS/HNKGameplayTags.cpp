@@ -2,6 +2,9 @@
 
 #include "GAS/HNKGameplayTags.h"
 
+// Ability State Tags
+UE_DEFINE_GAMEPLAY_TAG(HNKGameplayTags::Ability_State_Aiming, "Ability.State.Aiming");
+
 // Cosmetic Body Tags
 UE_DEFINE_GAMEPLAY_TAG_COMMENT(HNKGameplayTags::Cosmetic_Body_Feminine, "Cosmetic.Body.Feminine", "Default Feminine body");
 UE_DEFINE_GAMEPLAY_TAG_COMMENT(HNKGameplayTags::Cosmetic_Body_Masculine, "Cosmetic.Body.Masculine", "Default Masculine body");

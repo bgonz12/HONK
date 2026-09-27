@@ -8,6 +8,7 @@
 #include "Character/HNKCharacterMovementComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "GAS/HNKGameplayTags.h"
 #include "GAS/Attribute/HNKHealthAttributeSet.h"
 #include "Player/HNKPlayerStateBase.h"
 
@@ -55,6 +56,25 @@ void AHNKCharacter::BeginPlay()
 		InitializeAbilitySystem();
 		InitializeAttributes();
 	}
+	
+	UAbilitySystemComponent* ASC = GetAbilitySystemComponent();
+	if (ASC)
+	{
+		FOnGameplayEffectTagCountChanged& AimingTagChangedEvent = ASC->RegisterGameplayTagEvent(HNKGameplayTags::Ability_State_Aiming, EGameplayTagEventType::NewOrRemoved);
+		AimingTagChangedDelegateHandle = AimingTagChangedEvent.AddUObject(this, &AHNKCharacter::AimingTagChanged);
+	}
+}
+
+void AHNKCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	UAbilitySystemComponent* ASC = GetAbilitySystemComponent();
+	if (ASC)
+	{
+		FOnGameplayEffectTagCountChanged& AimingTagChangedEvent = ASC->RegisterGameplayTagEvent(HNKGameplayTags::Ability_State_Aiming, EGameplayTagEventType::NewOrRemoved);
+		AimingTagChangedDelegateHandle = AimingTagChangedEvent.AddUObject(this, &AHNKCharacter::AimingTagChanged);
+	}
+	
+	Super::EndPlay(EndPlayReason);
 }
 
 void AHNKCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -70,7 +90,7 @@ UAbilitySystemComponent* AHNKCharacter::GetAbilitySystemComponent() const
 void AHNKCharacter::InitializeAbilitySystem()
 {
 	UAbilitySystemComponent* ASC = GetAbilitySystemComponent();
-	if (IsValid(ASC))
+	if (ASC)
 	{
 		ASC->InitAbilityActorInfo(this, this);
 		HealthAttributeSet = ASC->GetSet<UHNKHealthAttributeSet>();
@@ -80,7 +100,7 @@ void AHNKCharacter::InitializeAbilitySystem()
 void AHNKCharacter::InitializeAttributes()
 {
 	UAbilitySystemComponent* ASC = GetAbilitySystemComponent();
-	if (!IsValid(ASC))
+	if (!ASC)
 	{
 		return;
 	}
@@ -136,6 +156,33 @@ void AHNKCharacter::HandlePlayerStateReady()
 	{
 		if (AHNKPlayerStateBase* MyPlayerState = GetPlayerState<AHNKPlayerStateBase>())
 		{
+		}
+	}
+}
+
+void AHNKCharacter::AimingTagChanged(const FGameplayTag GameplayTag, int32 NewCount)
+{
+	if (UCharacterMovementComponent* MyCharacterMovement = GetCharacterMovement())
+	{
+		if (bIsAiming)
+		{
+			if (NewCount <= 0)
+			{
+				bIsAiming = false;
+				MyCharacterMovement->bOrientRotationToMovement = !bIsAiming;
+				
+				BP_AimingChanged();
+			}
+		}
+		else
+		{
+			if (NewCount > 0)
+			{
+				bIsAiming = true;
+				MyCharacterMovement->bOrientRotationToMovement = !bIsAiming;
+
+				BP_AimingChanged();
+			}
 		}
 	}
 }

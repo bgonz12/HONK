@@ -9,6 +9,9 @@
 
 namespace HNKGameplayTags
 {
+	// Ability State Tags
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_State_Aiming);
+	
 	// Cosmetic Body Tags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Cosmetic_Body_Feminine);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Cosmetic_Body_Masculine);

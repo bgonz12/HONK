@@ -17,6 +17,8 @@ class HONK_API UHNKCharacterMovementComponent : public UCharacterMovementCompone
 	GENERATED_BODY()
 
 public:
+	UHNKCharacterMovementComponent();
+	
 	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction) override;
 	
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
