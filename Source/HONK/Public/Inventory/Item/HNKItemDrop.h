@@ -9,9 +9,11 @@
 
 // HONK Includes
 #include "Interfaces/HNKGuidInterface.h"
-#include "Save/HNKSaveableObjectInterface.h"
+#include "Inventory/HNKInventoryTypes.h"
 
 #include "HNKItemDrop.generated.h"
+
+class UHNKItemDefinition;
 
 UCLASS()
 class HONK_API AHNKItemDrop : public AActor, public IHNKGuidInterface
@@ -26,9 +28,11 @@ public:
 	virtual void SetGuid(const FGuid& InGuid) override;
 	//~End IHNKGuidInterface
 	
+	void SetItemStack(const FHNKItemStack& InItemStack);
+	
 protected:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
-	class UHNKItemDefinition* ItemDef;
+	FHNKItemStack ItemStack;
 	
 	UPROPERTY(VisibleInstanceOnly)
 	FGuid Guid;

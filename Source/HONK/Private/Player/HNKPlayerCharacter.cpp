@@ -4,6 +4,7 @@
 
 // HONK Includes
 #include "Gameplay/HNKGameplayStatics.h"
+#include "Inventory/HNKInventoryComponent.h"
 #include "Save/HNKSaveGame_Player.h"
 #include "Save/HNKSaveGameSubsystem.h"
 
@@ -19,6 +20,8 @@ AHNKPlayerCharacter::AHNKPlayerCharacter(const FObjectInitializer& ObjectInitial
 {
 	HairMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("HairMesh"));
 	HairMesh->SetupAttachment(GetMesh());
+	
+	InventoryComponent = CreateDefaultSubobject<UHNKInventoryComponent>(TEXT("InventoryComponent"));
 }
 
 void AHNKPlayerCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -65,6 +68,11 @@ void AHNKPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInput
 		Input->BindAction(JumpInputAction, ETriggerEvent::Completed, this, &AHNKPlayerCharacter::Input_JumpReleased);
 		Input->BindAction(RagdollInputAction, ETriggerEvent::Triggered, this, &AHNKPlayerCharacter::Input_Ragdoll);
 	}
+}
+
+UHNKInventoryComponent* AHNKPlayerCharacter::GetInventoryComponent() const
+{
+	return InventoryComponent;
 }
 
 bool AHNKPlayerCharacter::CanMove()

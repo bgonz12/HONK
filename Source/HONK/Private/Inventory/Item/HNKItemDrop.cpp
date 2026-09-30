@@ -20,3 +20,8 @@ void AHNKItemDrop::SetGuid(const FGuid& InGuid)
 {
 	Guid = InGuid;
 }
+
+void AHNKItemDrop::SetItemStack(const FHNKItemStack& InItemStack)
+{
+	ItemStack = InItemStack;
+}

@@ -2,21 +2,19 @@
 
 #pragma once
 
-// Engine Includes
 #include "CoreMinimal.h"
+
+// Engine Includes
 #include "GameFramework/Actor.h"
 
 // HONK Includes
-#include "HNKItemConstruct.generated.h"
+#include "HNKItemAttachment.generated.h"
 
 UCLASS()
-class HONK_API AHNKItemConstruct : public AActor
+class HONK_API AHNKItemAttachment : public AActor
 {
 	GENERATED_BODY()
 	
 public:	
-	AHNKItemConstruct();
-
-protected:
-	virtual void BeginPlay() override;
+	AHNKItemAttachment();
 };

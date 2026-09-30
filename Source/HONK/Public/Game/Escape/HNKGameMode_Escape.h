@@ -32,14 +32,14 @@ public:
 	void LoadGame();
 	
 	UFUNCTION(BlueprintCallable)
-	void UnlockItem(UHNKItemDefinition* InItemDef);
+	void UnlockItem(TSubclassOf<UHNKItemDefinition> InItemDef);
 	
 	UFUNCTION(BlueprintCallable)
 	void UpdatePlacedItemTransform(const FGuid& Guid, const FTransform& InTransform);
 	
 protected:
 	UPROPERTY(BlueprintReadWrite, VisibleAnywhere)
-	TArray<UHNKItemDefinition*> UnlockedItems;
+	TArray<TSubclassOf<UHNKItemDefinition>> UnlockedItems;
 	
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	bool bOverrideUnlockedItems = false;

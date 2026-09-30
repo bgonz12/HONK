@@ -76,14 +76,19 @@ void AHNKGameMode_Escape::LoadObject(USaveGame* SaveGame)
 			const FGuid& Key = PlacedItem.Key;
 			const FHNKPlacedItemSaveData& Data = PlacedItem.Value;
 			
-			UHNKItemDefinition* ItemDef = Data.ItemDef;
+			TSubclassOf<UHNKItemDefinition> ItemDef = Data.ItemDef;
 			if (!ItemDef)
 			{
 				continue;
 			}
 			
+			UHNKItemDefinition* ItemDefCDO = ItemDef->GetDefaultObject<UHNKItemDefinition>();
+			if (!ItemDefCDO)
+			{
+				continue;
+			}
 			
-			TSubclassOf<AHNKItemDrop> ItemDropClass = ItemDef->ItemDropClass;
+			TSubclassOf<AHNKItemDrop> ItemDropClass = ItemDefCDO->ItemDropClass;
 			if (!ItemDropClass)
 			{
 				continue;
@@ -132,7 +137,7 @@ void AHNKGameMode_Escape::LoadGame()
 	}
 }
 
-void AHNKGameMode_Escape::UnlockItem(UHNKItemDefinition* InItemDef)
+void AHNKGameMode_Escape::UnlockItem(TSubclassOf<UHNKItemDefinition> InItemDef)
 {
 	if (!UnlockedItems.Contains(InItemDef))
 	{

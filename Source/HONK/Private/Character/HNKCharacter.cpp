@@ -169,6 +169,7 @@ void AHNKCharacter::AimingTagChanged(const FGameplayTag GameplayTag, int32 NewCo
 			if (NewCount <= 0)
 			{
 				bIsAiming = false;
+				// TODO: Consider adding state request system with priorities for controlling bOrientRotationToMovement
 				MyCharacterMovement->bOrientRotationToMovement = !bIsAiming;
 				
 				BP_AimingChanged();

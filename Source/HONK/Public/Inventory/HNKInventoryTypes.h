@@ -12,13 +12,26 @@ class UHNKItemDefinition;
 class AHNKItemDrop;
 
 USTRUCT(BlueprintType)
+struct FHNKItemStack
+{
+	GENERATED_BODY()
+	
+public:
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	TSubclassOf<UHNKItemDefinition> ItemDef;
+	
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (UIMin = "1", UIMax = "999", ClampMin = "1"))
+	int32 Count = 1;
+};
+
+USTRUCT(BlueprintType)
 struct FHNKItemShopData
 {
 	GENERATED_BODY()
 	
 public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
-	UHNKItemDefinition* ItemDef;
+	TSubclassOf<UHNKItemDefinition> ItemDef;
 };
 
 USTRUCT(BlueprintType)
@@ -28,7 +41,7 @@ struct FHNKPlacedItemData
 	
 public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
-	TObjectPtr<UHNKItemDefinition> ItemDef;
+	TSubclassOf<UHNKItemDefinition> ItemDef;
 	
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	FTransform PlacedTransform;

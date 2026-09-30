@@ -18,7 +18,7 @@ struct FHNKPlacedItemSaveData
 	
 public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
-	TObjectPtr<UHNKItemDefinition> ItemDef;
+	TSubclassOf<UHNKItemDefinition> ItemDef;
 	
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	FTransform PlacedTransform;
@@ -37,7 +37,7 @@ public:
 	int32 CurrentDay = 0;
 	
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
-	TArray<UHNKItemDefinition*> UnlockedItems;
+	TArray<TSubclassOf<UHNKItemDefinition>> UnlockedItems;
 	
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	TMap<FGuid, FHNKPlacedItemSaveData> PlacedItems;

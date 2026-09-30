@@ -6,30 +6,39 @@
 #include "CoreMinimal.h"
 
 // HONK Includes
-#include "Engine/DataAsset.h"
 #include "HNKItemDefinition.generated.h"
 
 class AHNKItemDrop;
+class UHNKItemFragment;
 class AHNKItemHologram;
 
-UCLASS(BlueprintType)
-class HONK_API UHNKItemDefinition : public UDataAsset
+UCLASS(Blueprintable, BlueprintType, Abstract, Const)
+class HONK_API UHNKItemDefinition : public UObject
 {
 	GENERATED_BODY()
 	
 public:
-	UPROPERTY(BlueprintReadOnly, EditAnywhere)
-	FName ItemName;
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category="Display")
+	FText ItemName;
 	
-	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category="Display")
+	FText ItemDescription;
+	
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category="Display")
 	UTexture2D* ItemIcon;
 	
-	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly)
 	int32 BaseCost = 0;
 	
-	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	TSubclassOf<AHNKItemDrop> ItemDropClass;
 	
-	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	TSubclassOf<AHNKItemHologram> ItemHologramClass;
+	
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Instanced, Category = "Fragments Array")
+	TArray<TObjectPtr<UHNKItemFragment>> ItemFragments;
+	
+	UFUNCTION(BlueprintCallable, BlueprintPure, meta = (DeterminesOutputType = "ItemFragmentClass"))
+	static const UHNKItemFragment* FindFragmentByClass(const TSubclassOf<UHNKItemDefinition> ItemDef, const TSubclassOf<UHNKItemFragment> ItemFragmentClass);
 };
