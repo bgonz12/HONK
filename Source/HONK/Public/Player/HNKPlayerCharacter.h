@@ -7,10 +7,12 @@
 
 // HONK Includes
 #include "Character/HNKCharacter.h"
+#include "Gameplay/Interaction/HNKInteractionSourceInterface.h"
 #include "Inventory/HNKInventoryInterface.h"
 #include "Save/HNKSaveGame_Player.h"
 #include "HNKPlayerCharacter.generated.h"
 
+class UHNKInteractionSourceComponent;
 class UHNKInventoryComponent;
 class UInputAction;
 
@@ -50,7 +52,7 @@ public:
 };
 
 UCLASS()
-class HONK_API AHNKPlayerCharacter : public AHNKCharacter, public IHNKInventoryInterface
+class HONK_API AHNKPlayerCharacter : public AHNKCharacter, public IHNKInteractionSourceInterface, public IHNKInventoryInterface
 {
 	GENERATED_BODY()
 	
@@ -66,6 +68,10 @@ public:
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 	//~End APawn
 
+	//~Begin IHNKInteractionSourceInterface
+	virtual UHNKInteractionSourceComponent* GetInteractionSourceComponent() const override;
+	//~End IHNKInteractionSourceInterface
+	
 	//~Begin IHNKInventoryInterface
 	virtual UHNKInventoryComponent* GetInventoryComponent() const override;
 	//~End IHNKInventoryInterface
@@ -127,6 +133,9 @@ protected:
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TObjectPtr<USkeletalMeshComponent> HairMesh;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	TObjectPtr<UHNKInteractionSourceComponent> InteractionSourceComponent;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TObjectPtr<UHNKInventoryComponent> InventoryComponent;

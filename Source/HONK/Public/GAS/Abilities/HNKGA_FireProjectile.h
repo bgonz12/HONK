@@ -26,7 +26,10 @@ protected:
 	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
 	//~End UGameplayAbility
 	
-	AHNKProjectile* SpawnProjectile();
+	AHNKProjectile* SpawnProjectile(const FTransform& SpawnTransform);
+	
+	void GetSpawnTransform(FTransform& OutSpawnTransform) const;
+
 	
 protected:
 	UPROPERTY(EditDefaultsOnly)

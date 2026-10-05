@@ -1,5 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
+// Fill out your copyright notice in the Description page of Project S.ettings.
 
 #include "Inventory/Projectile/HNKProjectile.h"
 
@@ -22,6 +21,7 @@ AHNKProjectile::AHNKProjectile()
 	ProjectileMovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileMovementComponent"));
 	ProjectileMovementComponent->InitialSpeed = 2000.f;
 	ProjectileMovementComponent->MaxSpeed = 2000.f;
+	ProjectileMovementComponent->ProjectileGravityScale = 0.f;
 }
 
 void AHNKProjectile::BeginPlay()
@@ -39,4 +39,3 @@ void AHNKProjectile::ActorHit(AActor* SelfActor, AActor* OtherActor, FVector Nor
 void AHNKProjectile::ProjectileImpact(const FHitResult& Hit)
 {
 }
-

@@ -12,6 +12,7 @@
 #include "Components/CapsuleComponent.h"
 #include "EnhancedInputComponent.h"
 #include "InputActionValue.h"
+#include "Gameplay/Interaction/HNKInteractionSourceComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Net/UnrealNetwork.h"
@@ -20,6 +21,8 @@ AHNKPlayerCharacter::AHNKPlayerCharacter(const FObjectInitializer& ObjectInitial
 {
 	HairMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("HairMesh"));
 	HairMesh->SetupAttachment(GetMesh());
+	
+	InteractionSourceComponent = CreateDefaultSubobject<UHNKInteractionSourceComponent>(TEXT("InteractionSourceComponent"));
 	
 	InventoryComponent = CreateDefaultSubobject<UHNKInventoryComponent>(TEXT("InventoryComponent"));
 }
@@ -52,7 +55,6 @@ void AHNKPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInput
 	
 	if (UEnhancedInputComponent* Input = Cast<UEnhancedInputComponent>(PlayerInputComponent))
 	{	
-		//void BindInputActions(const UInputConfigDataAsset* InputConfig, UserClass* Object, PressedFuncType PressedFunc, ReleasedFuncType ReleasedFunc)
 		for (const FHNKAbilityInputBinding& Binding : AbilityInputBindings)
 		{
 			if (Binding.InputAction && Binding.AbilityTag.IsValid())
@@ -68,6 +70,11 @@ void AHNKPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInput
 		Input->BindAction(JumpInputAction, ETriggerEvent::Completed, this, &AHNKPlayerCharacter::Input_JumpReleased);
 		Input->BindAction(RagdollInputAction, ETriggerEvent::Triggered, this, &AHNKPlayerCharacter::Input_Ragdoll);
 	}
+}
+
+UHNKInteractionSourceComponent* AHNKPlayerCharacter::GetInteractionSourceComponent() const
+{
+	return InteractionSourceComponent;
 }
 
 UHNKInventoryComponent* AHNKPlayerCharacter::GetInventoryComponent() const
