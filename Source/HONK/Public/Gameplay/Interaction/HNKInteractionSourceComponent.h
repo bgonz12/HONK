@@ -7,7 +7,10 @@
 #include "HNKInteractionSourceComponent.generated.h"
 
 class UHNKInteractableComponent;
+class UHNKInteractPromptWidget;
 class UInputAction;
+class UUserWidget;
+class UWidgetComponent;
 struct FInputActionValue;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FHNKInteractableChanged, UHNKInteractionSourceComponent*, InteractionSourceComponent, UHNKInteractableComponent*, OldInteractable, UHNKInteractableComponent*, NewInteractable);
@@ -25,16 +28,28 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 	//~End UActorComponent
 	
-	void AddInteractableComonent(UHNKInteractableComponent* InteractableComponent);
-	void RemoveInteractableComonent(UHNKInteractableComponent* InteractableComponent);
+	void AddInteractableComponent(UHNKInteractableComponent* InteractableComponent);
+	void RemoveInteractableComponent(UHNKInteractableComponent* InteractableComponent);
 	
 protected:
-	void Input_Interact(const FInputActionValue& Value);
+	void InitInteractPromptWidgetComponent();
+	
+	void RefreshInteractPromptWidget();
+	
+	void Input_InteractStarted(const FInputActionValue& Value);
+	
+	void Input_InteractCompleted(const FInputActionValue& Value);
+
+	void BeginInteract(UHNKInteractableComponent* InteractableComponent);
+	void EndInteract(UHNKInteractableComponent* InteractableComponent);
+
+	void UpdateHoldInteract();
+	void FinishHoldInteract();
+
+	void TryTriggerInteract(UHNKInteractableComponent* InteractableComponent);
 	
 	UFUNCTION(Server, Reliable)
 	void ServerTryTriggerInteract(UHNKInteractableComponent* InteractableComponent);
-	
-	void TryTriggerInteract(UHNKInteractableComponent* InteractableComponent);
 	
 	void TriggerInteract(UHNKInteractableComponent* InteractableComponent);
 	
@@ -44,18 +59,31 @@ protected:
 	
 	void EvaluateCurrentInteractable();
 	
+	
 public:
 	UPROPERTY(BlueprintAssignable)
 	FHNKInteractableChanged OnCurrentInteractableChanged;
 	
 protected:
-	UPROPERTY()
-	TArray<UHNKInteractableComponent*> InteractableComponents;
-	
-	UPROPERTY()
-	UHNKInteractableComponent* CurrentInteractable;
-	
 	/** Interact Input Action */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input)
 	TObjectPtr<UInputAction> InteractInputAction;
+	
+	UPROPERTY(Transient)
+	TArray<UHNKInteractableComponent*> InteractableComponents;
+	
+	UPROPERTY(Transient)
+	UHNKInteractableComponent* CurrentInteractable;
+	
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<UHNKInteractPromptWidget> InteractPromptWidgetClass;
+	
+	UPROPERTY(Transient)
+	TObjectPtr<UHNKInteractPromptWidget> InteractPromptWidget;
+	
+	UPROPERTY(Transient)
+	TObjectPtr<UWidgetComponent> InteractPromptWidgetComponent;
+	
+	UPROPERTY(Transient, BlueprintReadOnly)
+	FTimerHandle HoldInteractTimerHandle;
 };

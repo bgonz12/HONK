@@ -5,9 +5,12 @@
 #include "CoreMinimal.h"
 
 // Engine Includes
+#include "HNKInteractionTypes.h"
 #include "Components/SphereComponent.h"
 
 #include "HNKInteractableComponent.generated.h"
+
+enum class EHNKInteractionType : uint8;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FHNKInteractableTriggered, AActor*, InteractingActor, bool, bIsServerInteract);
 
@@ -30,7 +33,13 @@ public:
 	void TriggerInteract(AActor* InteractingActor, bool bIsServerInteract);
 	
 	UFUNCTION(BlueprintPure)
-	void GetInteractionText(FText& OutInteractionText);
+	EHNKInteractionType GetInteractionType() const;
+	
+	UFUNCTION(BlueprintPure)
+	float GetRequiredHoldDuration() const;
+	
+	UFUNCTION(BlueprintPure)
+	void GetInteractionText(FText& OutInteractionText) const;
 	
 protected:
 	UFUNCTION()
@@ -44,6 +53,12 @@ public:
 	FHNKInteractableTriggered OnInteractableTriggered;
 	
 protected:
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	EHNKInteractionType InteractionType = EHNKInteractionType::IT_Press;
+	
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, meta = (EditCondition="InteractionType==EHNKInteractionType::IT_Hold", EditConditionHides))
+	float RequiredHoldDuration = 1.f;
+	
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	FText InteractionText = FText::FromString(FString("Interact"));
 };

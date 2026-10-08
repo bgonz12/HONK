@@ -14,7 +14,8 @@
 				"CoreUObject",
 				"GameplayAbilities",
 				"Mover",
-				"EnhancedInput"
+				"EnhancedInput",
+				"CommonUI"
 			]
 		}
 	],

@@ -19,7 +19,10 @@ public class HONK : ModuleRules
 			"GameplayTasks",
 			"GameplayTags",
 			"InputCore",
-			"Mover"
+			"Mover",
+			"Slate",
+			"SlateCore",
+			"UMG"
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[] { });

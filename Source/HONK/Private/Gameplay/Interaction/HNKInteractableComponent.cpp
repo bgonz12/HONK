@@ -33,7 +33,17 @@ void UHNKInteractableComponent::TriggerInteract(AActor* InteractingActor, bool b
 	OnInteractableTriggered.Broadcast(InteractingActor, bIsServerInteract);
 }
 
-void UHNKInteractableComponent::GetInteractionText(FText& OutInteractionText)
+EHNKInteractionType UHNKInteractableComponent::GetInteractionType() const
+{
+	return InteractionType;
+}
+
+float UHNKInteractableComponent::GetRequiredHoldDuration() const
+{
+	return RequiredHoldDuration;
+}
+
+void UHNKInteractableComponent::GetInteractionText(FText& OutInteractionText) const
 {
 	OutInteractionText = InteractionText;
 }
@@ -44,7 +54,7 @@ void UHNKInteractableComponent::ComponentBeginOverlap(UPrimitiveComponent* Overl
 	{
 		if (UHNKInteractionSourceComponent* ISC = InteractionSource->GetInteractionSourceComponent())
 		{
-			ISC->AddInteractableComonent(this);
+			ISC->AddInteractableComponent(this);
 		}
 	}
 }
@@ -55,7 +65,7 @@ void UHNKInteractableComponent::ComponentEndOverlap(UPrimitiveComponent* Overlap
 	{
 		if (UHNKInteractionSourceComponent* ISC = InteractionSource->GetInteractionSourceComponent())
 		{
-			ISC->RemoveInteractableComonent(this);
+			ISC->RemoveInteractableComponent(this);
 		}
 	}
 }
