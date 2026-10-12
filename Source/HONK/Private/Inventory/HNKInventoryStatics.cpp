@@ -4,7 +4,7 @@
 // HONK Includes
 #include "Inventory/HNKInventoryStatics.h"
 
-#include "Inventory/Item/Fragment/HNKItemFragment_Stackable.h"
+#include "Inventory/ItemFragment/HNKItemFragment_Stackable.h"
 
 int32 UHNKInventoryStatics::GetMaxStackCount(TSubclassOf<UHNKItemDefinition> ItemDef)
 {

@@ -10,7 +10,7 @@
 // HONK Includes
 #include "HNKItemEquip.generated.h"
 
-class AHNKItemAttachment;
+class AHNKEquipmentAttachment;
 
 UCLASS()
 class HONK_API AHNKItemEquip : public AActor
@@ -20,23 +20,23 @@ class HONK_API AHNKItemEquip : public AActor
 public:	
 	AHNKItemEquip();
 
-	//~ Begin AActor
+	//~Begin AActor
 	virtual void Destroyed() override;
-	//~ End AActor
+	//~End AActor
 	
 protected:
 	UFUNCTION(BlueprintCallable)
-	void SetItemAttachmentActor(AHNKItemAttachment* InItemAttachmentActor);
+	void SetItemAttachmentActor(AHNKEquipmentAttachment* InItemAttachmentActor);
 	
 	UFUNCTION(BlueprintCallable)
 	void SetItemDropActor(AHNKItemDrop* InItemDropActor);
 	
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TSubclassOf<AHNKItemAttachment> ItemAttachmentClass;
+	TSubclassOf<AHNKEquipmentAttachment> ItemAttachmentClass;
 	
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite)
-	TObjectPtr<AHNKItemAttachment> ItemAttachmentActor;
+	TObjectPtr<AHNKEquipmentAttachment> ItemAttachmentActor;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TSubclassOf<AHNKItemDrop> ItemDropClass;

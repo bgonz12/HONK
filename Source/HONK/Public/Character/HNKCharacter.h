@@ -19,7 +19,7 @@ class UHNKHealthAttributeSet;
 class UInputComponent;
 
 UCLASS()
-class HONK_API AHNKCharacter : public ACharacter, public IAbilitySystemInterface, public IHNKDamageableInterface
+class HONK_API AHNKCharacter : public ACharacter, public IAbilitySystemInterface, public IHNKDamageableInterface, public IGameplayCueInterface
 {
 	GENERATED_BODY()
 
@@ -46,6 +46,9 @@ public:
 	//~End ACharacter
 
 	bool GetWasLaunched() const { return bWasLaunched; }
+	
+	UFUNCTION()
+	void GameplayCue_PlaySound(EGameplayCueEvent::Type EventType, const FGameplayCueParameters& Parameters);
 	
 protected:
 	virtual void PossessedBy(AController* NewController) override;

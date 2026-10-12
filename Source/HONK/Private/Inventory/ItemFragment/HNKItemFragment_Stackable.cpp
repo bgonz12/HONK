@@ -1,4 +1,4 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Inventory/Item/Fragment/HNKItemFragment_WorldRepresentation.h"
+#include "Inventory/ItemFragment/HNKItemFragment_Stackable.h"

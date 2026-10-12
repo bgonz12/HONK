@@ -1,11 +1,10 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Inventory/Item/HNKItemAttachment.h"
+#include "Inventory/Equipment/HNKEquipmentAttachment.h"
 
-AHNKItemAttachment::AHNKItemAttachment()
+AHNKEquipmentAttachment::AHNKEquipmentAttachment()
 {
 	PrimaryActorTick.bCanEverTick = true;
-
 }
 

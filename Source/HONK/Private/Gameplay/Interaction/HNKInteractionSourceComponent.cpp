@@ -118,7 +118,7 @@ void UHNKInteractionSourceComponent::RefreshInteractPromptWidget()
 		if (InteractPromptWidget)
 		{
 			InteractPromptWidget->SetInteractProgress(0.f);
-			InteractPromptWidget->SetInteractType(CurrentInteractable->GetInteractionType());
+			InteractPromptWidget->UpdateInteractText(CurrentInteractable);
 		}
 	}
 	else
@@ -173,10 +173,7 @@ void UHNKInteractionSourceComponent::EndInteract(UHNKInteractableComponent* Inte
 		}
 	}
 	
-	if (InteractPromptWidget)
-	{
-		InteractPromptWidget->SetInteractProgress(0.f);
-	}
+	RefreshInteractPromptWidget();
 }
 
 void UHNKInteractionSourceComponent::UpdateHoldInteract()

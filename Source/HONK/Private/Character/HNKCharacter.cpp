@@ -10,6 +10,8 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GAS/HNKGameplayTags.h"
 #include "GAS/Attribute/HNKHealthAttributeSet.h"
+#include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetSystemLibrary.h"
 #include "Player/HNKPlayerStateBase.h"
 
 AHNKCharacter::AHNKCharacter(const FObjectInitializer& ObjectInitializer)
@@ -134,6 +136,15 @@ void AHNKCharacter::Landed(const FHitResult& Hit)
 	Super::Landed(Hit);
 	
 	bWasLaunched = false;
+}
+
+void AHNKCharacter::GameplayCue_PlaySound(EGameplayCueEvent::Type EventType, const FGameplayCueParameters& Parameters)
+{
+	if (const USoundBase* Sound = Cast<USoundBase>(Parameters.SourceObject))
+	{
+		USoundBase* SoundToPlay = const_cast<USoundBase*>(Sound);
+		UGameplayStatics::PlaySoundAtLocation(this, SoundToPlay, GetActorLocation());
+	}
 }
 
 void AHNKCharacter::PossessedBy(AController* NewController)

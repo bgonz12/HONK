@@ -12,23 +12,22 @@ namespace HNKGameplayTags
 	// Ability State Tags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_State_Aiming);
 	
-	// Cosmetic Body Tags
+	// Cosmetic Tags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Cosmetic_Body_Feminine);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Cosmetic_Body_Masculine);
-	
-	// Cosmetic Hair Tags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Cosmetic_Hair_JongleurHatF);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Cosmetic_Hair_Pompadour);
-	
-	// Cosmetic HairColor Tags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Cosmetic_HairColor_Blue);
-	
-	// Cosmetic Eyes Tags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Cosmetic_Eyes_1F);
-	
-	// Cosmetic EyeColor Tags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Cosmetic_EyeColor_Pink1);
-	
-	// Cosmetic Mouth Tags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Cosmetic_Mouth_1F);
+
+	// Cue Tags
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(GameplayCue_PlaySound);
+	
+	// Equipment Tags
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Equipment_Slot_MainHand);
+
+	// Item Tags
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Stat_Durability);
 }

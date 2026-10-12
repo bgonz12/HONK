@@ -13,6 +13,7 @@
 #include "EnhancedInputComponent.h"
 #include "InputActionValue.h"
 #include "Gameplay/Interaction/HNKInteractionSourceComponent.h"
+#include "Inventory/Equipment/HNKEquipmentComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Net/UnrealNetwork.h"
@@ -25,6 +26,8 @@ AHNKPlayerCharacter::AHNKPlayerCharacter(const FObjectInitializer& ObjectInitial
 	InteractionSourceComponent = CreateDefaultSubobject<UHNKInteractionSourceComponent>(TEXT("InteractionSourceComponent"));
 	
 	InventoryComponent = CreateDefaultSubobject<UHNKInventoryComponent>(TEXT("InventoryComponent"));
+	
+	EquipmentComponent = CreateDefaultSubobject<UHNKEquipmentComponent>(TEXT("EquipmentComponent"));
 }
 
 void AHNKPlayerCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -80,6 +83,31 @@ UHNKInteractionSourceComponent* AHNKPlayerCharacter::GetInteractionSourceCompone
 UHNKInventoryComponent* AHNKPlayerCharacter::GetInventoryComponent() const
 {
 	return InventoryComponent;
+}
+
+UHNKEquipmentComponent* AHNKPlayerCharacter::GetEquipmentComponent() const
+{
+	return EquipmentComponent;
+}
+
+void AHNKPlayerCharacter::SetAnimationOverrides(const FHNKAnimationOverrides& InAnimationOverrides)
+{
+	AnimationOverrides = InAnimationOverrides;
+	
+	if (HasAuthority())
+	{
+		OnRep_AnimationOverrides();
+	}
+}
+
+void AHNKPlayerCharacter::ClearAnimationOverrides()
+{
+	AnimationOverrides = FHNKAnimationOverrides();
+	
+	if (HasAuthority())
+	{
+		OnRep_AnimationOverrides();
+	}
 }
 
 bool AHNKPlayerCharacter::CanMove()
@@ -212,6 +240,11 @@ void AHNKPlayerCharacter::RagdollRecoverTimeEnd()
 void AHNKPlayerCharacter::OnRep_RagdollProperties()
 {
 	BP_RagdollPropertiesChanged();
+}
+
+void AHNKPlayerCharacter::OnRep_AnimationOverrides()
+{
+	BP_OnRep_AnimationOverrides();
 }
 
 void AHNKPlayerCharacter::TryInitPlayerCosmetics()

@@ -8,10 +8,13 @@
 // HONK Includes
 #include "Character/HNKCharacter.h"
 #include "Gameplay/Interaction/HNKInteractionSourceInterface.h"
+#include "Inventory/Equipment/HNKEquipmentComponentInterface.h"
 #include "Inventory/HNKInventoryInterface.h"
+#include "Inventory/HNKInventoryTypes.h"
 #include "Save/HNKSaveGame_Player.h"
 #include "HNKPlayerCharacter.generated.h"
 
+class UHNKEquipmentComponent;
 class UHNKInteractionSourceComponent;
 class UHNKInventoryComponent;
 class UInputAction;
@@ -52,7 +55,7 @@ public:
 };
 
 UCLASS()
-class HONK_API AHNKPlayerCharacter : public AHNKCharacter, public IHNKInteractionSourceInterface, public IHNKInventoryInterface
+class HONK_API AHNKPlayerCharacter : public AHNKCharacter, public IHNKEquipmentComponentInterface, public IHNKInteractionSourceInterface, public IHNKInventoryInterface
 {
 	GENERATED_BODY()
 	
@@ -75,7 +78,14 @@ public:
 	//~Begin IHNKInventoryInterface
 	virtual UHNKInventoryComponent* GetInventoryComponent() const override;
 	//~End IHNKInventoryInterface
+
+	//~Begin IHNKEquipmentComponentInterface
+	virtual UHNKEquipmentComponent* GetEquipmentComponent() const override;
+	//~End IHNKEquipmentComponentInterface
 	
+	virtual void SetAnimationOverrides(const FHNKAnimationOverrides& InAnimationOverrides);
+	virtual void ClearAnimationOverrides();
+
 protected:
 	//~Begin APawn
 	virtual void PossessedBy(AController* NewController) override;
@@ -113,6 +123,12 @@ protected:
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
 	void BP_ScoreRagdollGag();
 	
+	UFUNCTION(BlueprintImplementableEvent)
+	void BP_OnRep_AnimationOverrides();
+	
+	UFUNCTION()
+	void OnRep_AnimationOverrides();
+	
 	virtual void TryInitPlayerCosmetics();
 	
 	UFUNCTION(Server, Reliable)
@@ -140,6 +156,9 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TObjectPtr<UHNKInventoryComponent> InventoryComponent;
 	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	TObjectPtr<UHNKEquipmentComponent> EquipmentComponent;
+	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category=Input)
 	TArray<FHNKAbilityInputBinding> AbilityInputBindings;
 	
@@ -163,6 +182,9 @@ protected:
 	FHNKRagdollData RagdollData;
 	
 	FTimerHandle RagdollRecoverTimerHandle;
+	
+	UPROPERTY(ReplicatedUsing=OnRep_AnimationOverrides, Transient, VisibleAnywhere, BlueprintReadOnly)
+	FHNKAnimationOverrides AnimationOverrides;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category=Cosmetics)
 	FHNKPlayerCosmeticsData DefaultPlayerCosmetics;

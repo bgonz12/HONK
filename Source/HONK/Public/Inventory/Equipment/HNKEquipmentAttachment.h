@@ -8,13 +8,13 @@
 #include "GameFramework/Actor.h"
 
 // HONK Includes
-#include "HNKItemAttachment.generated.h"
+#include "HNKEquipmentAttachment.generated.h"
 
-UCLASS()
-class HONK_API AHNKItemAttachment : public AActor
+UCLASS(Abstract)
+class HONK_API AHNKEquipmentAttachment : public AActor
 {
 	GENERATED_BODY()
 	
 public:	
-	AHNKItemAttachment();
+	AHNKEquipmentAttachment();
 };

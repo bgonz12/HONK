@@ -24,7 +24,7 @@ public:
 	//~End UUserWidget
 	
 	UFUNCTION(BlueprintCallable)
-	void SetInteractType(EHNKInteractionType InInteractType);
+	void UpdateInteractText(UHNKInteractableComponent* InteractableComponent);
 	
 	UFUNCTION(BlueprintCallable)
 	void SetInteractProgress(float InPercent);

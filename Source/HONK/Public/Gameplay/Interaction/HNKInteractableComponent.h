@@ -41,6 +41,9 @@ public:
 	UFUNCTION(BlueprintPure)
 	void GetInteractionText(FText& OutInteractionText) const;
 	
+	UFUNCTION(BlueprintCallable)
+	void SetInteractionText(const FText& InInteractionText);
+	
 protected:
 	UFUNCTION()
 	void ComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult);
@@ -60,5 +63,5 @@ protected:
 	float RequiredHoldDuration = 1.f;
 	
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
-	FText InteractionText = FText::FromString(FString("Interact"));
+	FText InteractionText = FText::FromString(FString("to interact"));
 };

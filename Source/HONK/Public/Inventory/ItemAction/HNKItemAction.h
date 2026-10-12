@@ -8,10 +8,15 @@
 #include "UObject/Object.h"
 
 // HONK Includes
-#include "HNKItemFragment.generated.h"
+#include "HNKItemAction.generated.h"
+
+class UHNKItemInstance;
 
 UCLASS(Blueprintable, BlueprintType, Abstract, DefaultToInstanced, EditInlineNew)
-class HONK_API UHNKItemFragment : public UObject
+class HONK_API UHNKItemAction : public UObject
 {
 	GENERATED_BODY()
+	
+public:
+	virtual bool Execute(AActor* ItemOwner, UHNKItemInstance* ItemInstance);
 };

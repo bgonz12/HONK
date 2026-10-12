@@ -48,6 +48,11 @@ void UHNKInteractableComponent::GetInteractionText(FText& OutInteractionText) co
 	OutInteractionText = InteractionText;
 }
 
+void UHNKInteractableComponent::SetInteractionText(const FText& InInteractionText)
+{
+	InteractionText = InInteractionText;
+}
+
 void UHNKInteractableComponent::ComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	if (IHNKInteractionSourceInterface* InteractionSource = Cast<IHNKInteractionSourceInterface>(OtherActor))

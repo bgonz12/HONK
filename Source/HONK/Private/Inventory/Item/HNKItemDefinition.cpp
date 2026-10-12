@@ -3,7 +3,7 @@
 // HONK Includes
 #include "Inventory/Item/HNKItemDefinition.h"
 
-#include "Inventory/Item/Fragment/HNKItemFragment.h"
+#include "Inventory/ItemFragment/HNKItemFragment.h"
 
 const UHNKItemFragment* UHNKItemDefinition::FindFragmentByClass(const TSubclassOf<UHNKItemDefinition> ItemDef, const TSubclassOf<UHNKItemFragment> ItemFragmentClass)
 {

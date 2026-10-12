@@ -3,7 +3,7 @@
 #include "Inventory/Item/HNKItemEquip.h"
 
 // HONK Includes
-#include "Inventory/Item/HNKItemAttachment.h"
+#include "Inventory/Equipment/HNKEquipmentAttachment.h"
 
 AHNKItemEquip::AHNKItemEquip()
 {
@@ -20,7 +20,7 @@ void AHNKItemEquip::Destroyed()
 	Super::Destroyed();
 }
 
-void AHNKItemEquip::SetItemAttachmentActor(AHNKItemAttachment* InItemAttachmentActor)
+void AHNKItemEquip::SetItemAttachmentActor(AHNKEquipmentAttachment* InItemAttachmentActor)
 {
 	ItemAttachmentActor = InItemAttachmentActor;
 }

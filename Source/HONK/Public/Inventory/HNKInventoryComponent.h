@@ -27,14 +27,29 @@ public:
 	//~End UObject
 	
 	UFUNCTION(BlueprintCallable, Category = "Interaction")
-	bool AddItem(UPARAM(ref) FHNKItemStack& InOutNewItem);
+	int32 AddItem(const FHNKItemDefinitionStack& InItemDefStack);
 	
 	UFUNCTION(BlueprintCallable, Category = "Interaction")
-	bool RemoveItem(int32 ItemIndex);
+	bool RemoveItem(int32 ItemIndex, int32 Count = -1);
+	
+	UFUNCTION(Server, Reliable, BlueprintCallable, Category = "Interaction")
+	void ServerDropItem(int32 ItemIndex);
 	
 	UFUNCTION(BlueprintCallable, Category = "Interaction")
 	bool DropItem(int32 ItemIndex);
 
+	UFUNCTION(Server, Reliable, BlueprintCallable, Category = "Interaction")
+	void ServerUseItem(int32 ItemIndex);
+	
+	UFUNCTION(BlueprintCallable, Category = "Interaction")
+	bool UseItem(int32 ItemIndex);
+	
+	UFUNCTION(BlueprintCallable, Category = "Helper Functions")
+	bool FindItemInstance(TSubclassOf<UHNKItemDefinition> ItemDef, FHNKItemInstanceStack& ItemInstanceStack) const;
+	
+	UFUNCTION(BlueprintCallable, Category = "Helper Functions")
+	bool FindAllItemInstances(TSubclassOf<UHNKItemDefinition> ItemDef, TArray<FHNKItemInstanceStack>& ItemInstanceStacks) const;
+	
 protected:
 	UFUNCTION()
 	void OnRep_Items();
@@ -48,5 +63,5 @@ protected:
 	FHNKOnInventoryChanged OnInventoryChanged;
 	
 	UPROPERTY(ReplicatedUsing=OnRep_Items, VisibleInstanceOnly, BlueprintReadWrite)
-	TArray<FHNKItemStack> Items;
+	TArray<FHNKItemInstanceStack> Items;
 };

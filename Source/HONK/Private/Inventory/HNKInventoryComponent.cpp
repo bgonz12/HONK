@@ -3,13 +3,17 @@
 #include "Inventory/HNKInventoryComponent.h"
 
 // HONK Includes
+#include "Inventory/HNKInventoryStatics.h"
+#include "Inventory/ItemFragment/HNKItemFragment_Useable.h"
+#include "Inventory/ItemFragment/HNKItemFragment_WorldRepresentation.h"
 #include "Inventory/Item/HNKItemDefinition.h"
 #include "Inventory/Item/HNKItemDrop.h"
-#include "Inventory/Item/Fragment/HNKItemFragment_WorldRepresentation.h"
+#include "Inventory/Item/HNKItemInstance.h"
 
 // Engine Includes
-#include "Inventory/HNKInventoryStatics.h"
-#include "Inventory/Item/Fragment/HNKItemFragment_Stackable.h"
+#include "Inventory/Equipment/HNKEquipmentComponent.h"
+#include "Inventory/Equipment/HNKEquipmentComponentInterface.h"
+#include "Inventory/Equipment/HNKEquipmentInstance.h"
 #include "Net/UnrealNetwork.h"
 
 UHNKInventoryComponent::UHNKInventoryComponent()
@@ -26,54 +30,69 @@ void UHNKInventoryComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty
 	DOREPLIFETIME(UHNKInventoryComponent, Items);
 }
 
-bool UHNKInventoryComponent::AddItem(FHNKItemStack& InOutNewItem)
+int32 UHNKInventoryComponent::AddItem(const FHNKItemDefinitionStack& InItemDefStack)
 {
 	AActor* MyOwner = GetOwner();
 	if (!MyOwner || !MyOwner->HasAuthority())
 	{
-		return false;
+		return -1;
 	}
 	
-	if (!IsValid(InOutNewItem.ItemDef))
+	if (!IsValid(InItemDefStack.ItemDef))
 	{
-		return false;
+		return -1;
 	}
 	
 	// Fill out existing ItemStacks with empty space
-	const int32 MaxItemStackCount = UHNKInventoryStatics::GetMaxStackCount(InOutNewItem.ItemDef);
+	const int32 MaxItemStackCount = UHNKInventoryStatics::GetMaxStackCount(InItemDefStack.ItemDef);
 	if (MaxItemStackCount <= 0)
 	{
-		return false;
+		return -1;
 	}
 	
-	while (InOutNewItem.Count > 0)
+	int32 LastAddedItemIndex = -1;
+	
+	int32 RemainingCountToAdd = InItemDefStack.Count;
+	while (RemainingCountToAdd > 0)
 	{
-		int32 ItemWithEmptySpaceIndex = FindStackWithEmptySpace(InOutNewItem.ItemDef);
+		int32 ItemWithEmptySpaceIndex = FindStackWithEmptySpace(InItemDefStack.ItemDef);
 		if (ItemWithEmptySpaceIndex >= 0)
 		{
-			const int32 CountToAdd = FMath::Min(MaxItemStackCount - Items[ItemWithEmptySpaceIndex].Count, InOutNewItem.Count);
+			const int32 CountToAdd = FMath::Min(MaxItemStackCount - Items[ItemWithEmptySpaceIndex].Count, RemainingCountToAdd);
 	
 			Items[ItemWithEmptySpaceIndex].Count += CountToAdd;
-			InOutNewItem.Count -= CountToAdd;
+			RemainingCountToAdd -= CountToAdd;
+			
+			LastAddedItemIndex = ItemWithEmptySpaceIndex;
 		}
 		else
 		{
-			const int32 CountToAdd = FMath::Min(MaxItemStackCount, InOutNewItem.Count);
-
-			FHNKItemStack CurrentItemStack;
-			CurrentItemStack.ItemDef = InOutNewItem.ItemDef;
-			CurrentItemStack.Count = CountToAdd;
-			InOutNewItem.Count -= CountToAdd;
-		
-			Items.Add(CurrentItemStack);
+			const int32 CountToAdd = FMath::Min(MaxItemStackCount, RemainingCountToAdd);
+			
+			UHNKItemInstance* ItemInstance = NewObject<UHNKItemInstance>(this);
+			if (!ensure(ItemInstance))
+			{
+				return false;
+			}
+			
+			ItemInstance->Initialize(InItemDefStack.ItemDef);
+			
+			FHNKItemInstanceStack NewItemStack;
+			NewItemStack.ItemInstance = ItemInstance;
+			NewItemStack.Count = CountToAdd;
+			RemainingCountToAdd -= CountToAdd;
+			
+			Items.Add(NewItemStack);
+			
+			LastAddedItemIndex = Items.Num() - 1;
 		}
 	}
 	
 	OnRep_Items();
-	return true;
+	return LastAddedItemIndex;
 }
 
-bool UHNKInventoryComponent::RemoveItem(int32 ItemIndex)
+bool UHNKInventoryComponent::RemoveItem(int32 ItemIndex, int32 Count)
 {
 	AActor* MyOwner = GetOwner();
 	if (!MyOwner || !MyOwner->HasAuthority())
@@ -83,12 +102,25 @@ bool UHNKInventoryComponent::RemoveItem(int32 ItemIndex)
 	
 	if (Items.IsValidIndex(ItemIndex))
 	{
-		Items.RemoveAt(ItemIndex);
-		OnRep_Items();
-		return true;
+		if (Count < 0 || Count >= Items[ItemIndex].Count)
+		{
+			Items.RemoveAt(ItemIndex);
+			OnRep_Items();
+			return true;
+		}
+		else
+		{
+			Items[ItemIndex].Count -= Count;
+			return true;
+		}
 	}
 	
 	return false;
+}
+
+void UHNKInventoryComponent::ServerDropItem_Implementation(int32 ItemIndex)
+{
+	DropItem(ItemIndex);
 }
 
 bool UHNKInventoryComponent::DropItem(int32 ItemIndex)
@@ -104,12 +136,23 @@ bool UHNKInventoryComponent::DropItem(int32 ItemIndex)
 		return false;
 	}
 	
-	const UHNKItemFragment_WorldRepresentation* Fragment = Cast<UHNKItemFragment_WorldRepresentation>(UHNKItemDefinition::FindFragmentByClass(Items[ItemIndex].ItemDef, UHNKItemFragment_WorldRepresentation::StaticClass()));
+	const UHNKItemFragment_WorldRepresentation* Fragment = Cast<UHNKItemFragment_WorldRepresentation>(Items[ItemIndex].ItemInstance->FindFragmentByClass(UHNKItemFragment_WorldRepresentation::StaticClass()));
 	if (!Fragment || !Fragment->bCanBeDropped || !Fragment->ItemDropClass)
 	{
 		return false;
 	}
 		
+	if (IHNKEquipmentComponentInterface* ECI = Cast<IHNKEquipmentComponentInterface>(GetOwner()))
+	{
+		if (UHNKEquipmentComponent* EquipmentComponent = ECI->GetEquipmentComponent())
+		{
+			if (UHNKEquipmentInstance* EquipmentInstance = EquipmentComponent->FindEquipmentByItemInstance(Items[ItemIndex].ItemInstance))
+			{
+				EquipmentComponent->UnequipItem(EquipmentInstance);
+			}
+		}
+	}
+	
 	UWorld* World = GetWorld();
 	if (!World)
 	{
@@ -123,10 +166,78 @@ bool UHNKInventoryComponent::DropItem(int32 ItemIndex)
 	}
 	
 	AHNKItemDrop* ItemDrop = World->SpawnActor<AHNKItemDrop>(Fragment->ItemDropClass, DropTransform);
-	ItemDrop->SetItemStack(Items[ItemIndex]);
+	
+	FHNKItemDefinitionStack ItemDefStack;
+	ItemDefStack.ItemDef = Items[ItemIndex].ItemInstance->ItemDef;
+	ItemDefStack.Count = Items[ItemIndex].Count;
+	ItemDrop->SetItemStack(ItemDefStack);
 
 	RemoveItem(ItemIndex);
 	return true;
+}
+
+void UHNKInventoryComponent::ServerUseItem_Implementation(int32 ItemIndex)
+{
+	UseItem(ItemIndex);
+}
+
+bool UHNKInventoryComponent::UseItem(int32 ItemIndex)
+{
+	AActor* MyOwner = GetOwner();
+	if (!MyOwner || !MyOwner->HasAuthority())
+	{
+		return false;
+	}
+	
+	if (!Items.IsValidIndex(ItemIndex))
+	{
+		return false;
+	}
+	
+	const UHNKItemFragment_Useable* Fragment = Cast<UHNKItemFragment_Useable>(Items[ItemIndex].ItemInstance->FindFragmentByClass(UHNKItemFragment_Useable::StaticClass()));
+	if (!Fragment)
+	{
+		return false;
+	}
+	
+	const bool bSuccess = Fragment->Use(GetOwner(), Items[ItemIndex].ItemInstance);
+	
+	if (bSuccess && Fragment->bConsumeOnUse)
+	{
+		RemoveItem(ItemIndex, 1);
+	}
+	
+	return bSuccess;
+}
+
+bool UHNKInventoryComponent::FindItemInstance(TSubclassOf<UHNKItemDefinition> ItemDef, FHNKItemInstanceStack& ItemInstanceStack) const
+{
+	for (const FHNKItemInstanceStack& Stack : Items)
+	{
+		if (Stack.ItemInstance && Stack.ItemInstance->ItemDef == ItemDef)
+		{
+			ItemInstanceStack = Stack;
+			return true;
+		}
+	}
+	
+	return false;
+}
+
+bool UHNKInventoryComponent::FindAllItemInstances(TSubclassOf<UHNKItemDefinition> ItemDef, TArray<FHNKItemInstanceStack>& ItemInstanceStacks) const
+{
+	bool bSuccess = false;
+	
+	for (const FHNKItemInstanceStack& Stack : Items)
+	{
+		if (Stack.ItemInstance && Stack.ItemInstance->ItemDef == ItemDef)
+		{
+			ItemInstanceStacks.Add(Stack);
+			bSuccess = true;
+		}
+	}
+	
+	return bSuccess;
 }
 
 void UHNKInventoryComponent::OnRep_Items()
@@ -149,9 +260,9 @@ int32 UHNKInventoryComponent::FindStackWithEmptySpace(TSubclassOf<UHNKItemDefini
 	
 	for (int32 I = 0; I < Items.Num(); ++I)
 	{
-		const FHNKItemStack& ItemStack = Items[I];
+		const FHNKItemInstanceStack& ItemStack = Items[I];
 		
-		if (ItemStack.ItemDef == ItemDef)
+		if (ItemStack.ItemInstance->ItemDef == ItemDef)
 		{
 			if (ItemStack.Count < MaxItemStackCount)
 			{

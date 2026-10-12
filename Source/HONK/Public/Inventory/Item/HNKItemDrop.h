@@ -28,11 +28,11 @@ public:
 	virtual void SetGuid(const FGuid& InGuid) override;
 	//~End IHNKGuidInterface
 	
-	void SetItemStack(const FHNKItemStack& InItemStack);
+	void SetItemStack(const FHNKItemDefinitionStack& InItemStack);
 	
 protected:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
-	FHNKItemStack ItemStack;
+	FHNKItemDefinitionStack ItemStack;
 	
 	UPROPERTY(VisibleInstanceOnly)
 	FGuid Guid;

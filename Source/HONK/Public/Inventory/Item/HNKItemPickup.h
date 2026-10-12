@@ -20,6 +20,10 @@ class HONK_API AHNKItemPickup : public AHNKItemDrop
 public:
 	AHNKItemPickup();
 	
+	//~Begin UObject
+	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
+	//~End UObject
+
 protected:
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
 	TObjectPtr<USceneComponent> RootSceneComponent;

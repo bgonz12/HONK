@@ -14,14 +14,14 @@ class HONK_API AHNKGameMode : public AGameMode
 	GENERATED_BODY()
 	
 public:
-	//~ Begin AGameModeBase Interface
+	//~Begin AGameModeBase Interface
 	virtual void PostLogin(APlayerController* NewPlayer) override;
 	virtual void Logout(AController* Exiting) override;
-	//~ End AGameModeBase Interface
+	//~End AGameModeBase Interface
 	
-	//~ Begin AGameMode Interface
+	//~Begin AGameMode Interface
 	virtual bool ReadyToStartMatch_Implementation() override;
-	//~ End AGameMode Interface
+	//~End AGameMode Interface
 
 	
 	UFUNCTION(BlueprintCallable)

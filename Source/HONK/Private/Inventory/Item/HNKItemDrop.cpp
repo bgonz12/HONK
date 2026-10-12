@@ -21,7 +21,7 @@ void AHNKItemDrop::SetGuid(const FGuid& InGuid)
 	Guid = InGuid;
 }
 
-void AHNKItemDrop::SetItemStack(const FHNKItemStack& InItemStack)
+void AHNKItemDrop::SetItemStack(const FHNKItemDefinitionStack& InItemStack)
 {
 	ItemStack = InItemStack;
 }

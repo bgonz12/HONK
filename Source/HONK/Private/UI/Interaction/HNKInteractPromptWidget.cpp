@@ -8,6 +8,7 @@
 // Engine Includes
 #include "Components/ProgressBar.h"
 #include "Components/TextBlock.h"
+#include "Gameplay/Interaction/HNKInteractableComponent.h"
 
 #define LOCTEXT_NAMESPACE "UI.InteractPromptWidget"
 
@@ -18,26 +19,29 @@ void UHNKInteractPromptWidget::NativePreConstruct()
 	SetInteractProgress(0.f);
 }
 
-void UHNKInteractPromptWidget::SetInteractType(EHNKInteractionType InInteractType)
+void UHNKInteractPromptWidget::UpdateInteractText(UHNKInteractableComponent* InteractableComponent)
 {
 	if (Interact_TextBlock)
 	{
-		FText Action;
-		switch (InInteractType)
+		FText InteractionTypeText;
+		switch (InteractableComponent->GetInteractionType())
 		{
 		case EHNKInteractionType::IT_Press:
-			Action = FText::FromString(TEXT("PRESS"));
+			InteractionTypeText = FText::FromString(TEXT("PRESS"));
 			break;
 			
 		case EHNKInteractionType::IT_Hold:
-			Action = FText::FromString(TEXT("HOLD"));
+			InteractionTypeText = FText::FromString(TEXT("HOLD"));
 			break;
 			
 		default:
 			break;
 		}
 		
-		FText InteractText = FText::Format(NSLOCTEXT(LOCTEXT_NAMESPACE, "Interact_TextBlock", "{0} \"E\" to interact"), Action);
+		FText InteractionText;
+		InteractableComponent->GetInteractionText(InteractionText);
+		
+		FText InteractText = FText::Format(NSLOCTEXT(LOCTEXT_NAMESPACE, "Interact_TextBlock", "{0} \"E\" {1}"), InteractionTypeText, InteractionText);
 		Interact_TextBlock->SetText(InteractText);
 	}
 }

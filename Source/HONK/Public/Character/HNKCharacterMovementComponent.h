@@ -23,9 +23,9 @@ public:
 	
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	
-	//~ Begin UActorComponent
+	//~Begin UActorComponent
 	virtual float GetGravityZ() const override;
-	//~ End UActorComponent
+	//~End UActorComponent
 	
 	bool ShouldApplyJumpGravity() const;
 	
