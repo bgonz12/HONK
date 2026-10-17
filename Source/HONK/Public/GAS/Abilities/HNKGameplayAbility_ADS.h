@@ -7,17 +7,17 @@
 
 // HONK Includes
 #include "GAS/Abilities/HNKGameplayAbility.h"
-#include "HNKGA_ADS.generated.h"
+#include "HNKGameplayAbility_ADS.generated.h"
 
 class UGameplayEffect;
 
 UCLASS()
-class HONK_API UHNKGA_ADS : public UHNKGameplayAbility
+class HONK_API UHNKGameplayAbility_ADS : public UHNKGameplayAbility
 {
 	GENERATED_BODY()
 	
 public:
-	UHNKGA_ADS();
+	UHNKGameplayAbility_ADS();
 	
 protected:
 	//~Begin UGameplayAbility

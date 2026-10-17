@@ -6,7 +6,7 @@
 
 // HONK Includes
 #include "GAS/Abilities/HNKGameplayAbility.h"
-#include "HNKGA_FireProjectile.generated.h"
+#include "HNKGameplayAbility_FireProjectile.generated.h"
 
 class AHNKProjectile;
 
@@ -14,12 +14,12 @@ class AHNKProjectile;
  * 
  */
 UCLASS()
-class HONK_API UHNKGA_FireProjectile : public UHNKGameplayAbility
+class HONK_API UHNKGameplayAbility_FireProjectile : public UHNKGameplayAbility
 {
 	GENERATED_BODY()
 	
 public:
-	UHNKGA_FireProjectile();
+	UHNKGameplayAbility_FireProjectile();
 	
 protected:
 	//~Begin UGameplayAbility

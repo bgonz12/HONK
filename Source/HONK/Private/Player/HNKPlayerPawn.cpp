@@ -10,7 +10,7 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "GAS/Attribute/HNKHealthAttributeSet.h"
 #include "Pawn/HNKCharacterMoverComponent.h"
-#include "Player/HNKPlayerStateBase.h"
+#include "Player/HNKPlayerState.h"
 
 AHNKPlayerPawn::AHNKPlayerPawn()
 {

@@ -1,6 +1,6 @@
 // HONK Includes
 #include "Player/HNKPlayerController.h"
-#include "Player/HNKPlayerStateBase.h"
+#include "Player/HNKPlayerState.h"
 
 // Engine Includes
 #include "AbilitySystemGlobals.h"

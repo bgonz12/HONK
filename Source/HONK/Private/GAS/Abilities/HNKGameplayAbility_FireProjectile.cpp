@@ -1,17 +1,17 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "GAS/Abilities/HNKGA_FireProjectile.h"
+#include "GAS/Abilities/HNKGameplayAbility_FireProjectile.h"
 
 #include "Character/HNKCharacter.h"
 #include "Inventory/Projectile/HNKProjectile.h"
 
-UHNKGA_FireProjectile::UHNKGA_FireProjectile()
+UHNKGameplayAbility_FireProjectile::UHNKGameplayAbility_FireProjectile()
 {
 	NetExecutionPolicy = EGameplayAbilityNetExecutionPolicy::LocalPredicted;
 }
 
-void UHNKGA_FireProjectile::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
+void UHNKGameplayAbility_FireProjectile::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 {	
 	if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
 	{
@@ -27,7 +27,7 @@ void UHNKGA_FireProjectile::ActivateAbility(const FGameplayAbilitySpecHandle Han
 	EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
 }
 
-AHNKProjectile* UHNKGA_FireProjectile::SpawnProjectile(const FTransform& SpawnTransform)
+AHNKProjectile* UHNKGameplayAbility_FireProjectile::SpawnProjectile(const FTransform& SpawnTransform)
 {
 	if (!ProjectileClass)
 	{
@@ -48,7 +48,7 @@ AHNKProjectile* UHNKGA_FireProjectile::SpawnProjectile(const FTransform& SpawnTr
 	return World->SpawnActor<AHNKProjectile>(ProjectileClass, SpawnTransform, SpawnParams);
 }
 
-void UHNKGA_FireProjectile::GetSpawnTransform(FTransform& OutSpawnTransform) const
+void UHNKGameplayAbility_FireProjectile::GetSpawnTransform(FTransform& OutSpawnTransform) const
 {
 	AHNKCharacter* OwnerCharacter = Cast<AHNKCharacter>(GetAvatarActorFromActorInfo());
 	if (!OwnerCharacter)

@@ -12,7 +12,7 @@
 #include "GAS/Attribute/HNKHealthAttributeSet.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetSystemLibrary.h"
-#include "Player/HNKPlayerStateBase.h"
+#include "Player/HNKPlayerState.h"
 
 AHNKCharacter::AHNKCharacter(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer.SetDefaultSubobjectClass<UHNKCharacterMovementComponent>(ACharacter::CharacterMovementComponentName))
@@ -165,7 +165,7 @@ void AHNKCharacter::HandlePlayerStateReady()
 {
 	if (HasAuthority())
 	{
-		if (AHNKPlayerStateBase* MyPlayerState = GetPlayerState<AHNKPlayerStateBase>())
+		if (AHNKPlayerState* MyPlayerState = GetPlayerState<AHNKPlayerState>())
 		{
 		}
 	}

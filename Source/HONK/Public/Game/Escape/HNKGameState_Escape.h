@@ -29,14 +29,14 @@ class HONK_API AHNKGameState_Escape : public AHNKGameState, public IHNKSaveableO
 	GENERATED_BODY()
 	
 public:
-	//~ Begin UObject
+	//~Begin UObject
 	virtual void GetLifetimeReplicatedProps(TArray< FLifetimeProperty > &OutLifetimeProps) const override;
-	//~ End UObject
+	//~End UObject
 
-	//~ Begin AHNKGameState
+	//~Begin AHNKGameState
 	virtual void Server_PlayerReadyUp(APlayerController* PlayerController) override;
 	virtual void Server_PlayerUnreadyUp(APlayerController* PlayerController) override;
-	//~ End AHNKGameState
+	//~End AHNKGameState
 	
 	//~Begin IHNKSaveableObjectInterface
 	virtual void SaveObject(USaveGame* SaveGame) override;

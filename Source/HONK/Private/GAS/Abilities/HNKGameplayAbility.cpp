@@ -3,3 +3,9 @@
 
 #include "GAS/Abilities/HNKGameplayAbility.h"
 
+UHNKGameplayAbility::UHNKGameplayAbility()
+{
+	ReplicationPolicy = EGameplayAbilityReplicationPolicy::ReplicateYes;
+	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
+	NetExecutionPolicy = EGameplayAbilityNetExecutionPolicy::LocalPredicted;
+}
