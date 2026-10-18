@@ -11,7 +11,6 @@
 #include "AbilitySystemGlobals.h"
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "GameFramework/CharacterMovementComponent.h"
-#include "Kismet/KismetSystemLibrary.h"
 #include "Player/HNKPlayerCharacter.h"
 #include "Player/HNKPlayerState.h"
 
@@ -127,10 +126,16 @@ void UHNKGameplayAbility_MeleeAttack::HandleMeleeSweepHit(const FHitResult& HitR
 		return;
 	}
 	
-	AHNKPlayerState* OwnerPlayerState = nullptr;
-	if (AHNKPlayerCharacter* OwnerActor = Cast<AHNKPlayerCharacter>(GetOwningActorFromActorInfo()))
+	AHNKCharacter* OwnerCharacter = Cast<AHNKCharacter>(GetOwningActorFromActorInfo());
+	if (!OwnerCharacter)
 	{
-		OwnerPlayerState = OwnerActor->GetPlayerState<AHNKPlayerState>();
+		return;
+	}
+	
+	AHNKPlayerState* OwnerPlayerState = nullptr;
+	if (OwnerCharacter)
+	{
+		OwnerPlayerState = OwnerCharacter->GetPlayerState<AHNKPlayerState>();
 	}
 	
 	AActor* Actor = HitResult.GetActor();
@@ -145,11 +150,16 @@ void UHNKGameplayAbility_MeleeAttack::HandleMeleeSweepHit(const FHitResult& HitR
 		return;
 	}
 	
+	// Adding this so the hit character is always launched away from the attacker.
+	// Might consider adding a checkbox for this.
+	FHitResult FakeHitResult = HitResult;
+	FakeHitResult.ImpactPoint = OwnerCharacter->GetActorLocation();
+	
+	FGameplayEffectContextHandle EffectContextHandle = MakeEffectContext(CurrentSpecHandle, CurrentActorInfo);
+	EffectContextHandle.AddHitResult(FakeHitResult);
+	
 	for (TSubclassOf<UGameplayEffect> EffectClass : HitEffects)
 	{
-		FGameplayEffectContextHandle EffectContextHandle;
-		EffectContextHandle.AddHitResult(HitResult);
-		
 		OwnerASC->ApplyGameplayEffectToTarget(EffectClass.GetDefaultObject(), TargetASC, UGameplayEffect::INVALID_LEVEL, EffectContextHandle);
 	}
 	

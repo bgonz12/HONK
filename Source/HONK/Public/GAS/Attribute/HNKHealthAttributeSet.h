@@ -61,7 +61,7 @@ public:
 	FGameplayAttributeData MaxHealth;
 	ATTRIBUTE_ACCESSORS(UHNKHealthAttributeSet, MaxHealth)
 	
-	// Damage is a meta attribute used by the DamageExecution to calculate final damage, which then turns into -Health
+	// Damage is a meta attribute used to calculate final damage, which then turns into -Health
 	// Temporary value that only exists on the Server. Not replicated.
 	UPROPERTY(BlueprintReadOnly, Category = "Damage")
 	FGameplayAttributeData Damage;
@@ -70,5 +70,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, ReplicatedUsing=OnRep_DamageMod)
 	FGameplayAttributeData DamageMod;
 	ATTRIBUTE_ACCESSORS(UHNKHealthAttributeSet, DamageMod)
-
+	
+	// LaunchStrength is a meta attribute used to calculate a launch velocity, which puts the character into ragdoll
+	// and launches them. Temporary value that only exists on the Server. Not replicated.
+	UPROPERTY(BlueprintReadOnly, Category = "LaunchStrength")
+	FGameplayAttributeData LaunchStrength;
+	ATTRIBUTE_ACCESSORS(UHNKHealthAttributeSet, LaunchStrength)
 };

@@ -8,6 +8,7 @@
 #include "Gameplay/HNKDamageableInterface.h"
 #include "Gameplay/HNKDamageTypes.h"
 #include "Net/UnrealNetwork.h"
+#include "Player/HNKPlayerCharacter.h"
 
 UHNKHealthAttributeSet::UHNKHealthAttributeSet()
 {
@@ -64,11 +65,31 @@ void UHNKHealthAttributeSet::PostGameplayEffectExecute(const struct FGameplayEff
 {
 	if (Data.EvaluatedData.Attribute == GetDamageAttribute())
 	{
-		if (GetDamage() != 0.0f)
+		if (GetDamage() != 0.f)
 		{
 			FHNKDamagePacket AttemptedDamage = MakeDamagePacketFromEffectContext(Data.EffectSpec.GetContext(), Data.EffectSpec, GetDamage());
 			TryApplyDamage(AttemptedDamage);
-			SetDamage(0.0f);
+			SetDamage(0.f);
+		}
+	}
+	else if (Data.EvaluatedData.Attribute == GetLaunchStrengthAttribute())
+	{
+		if (GetLaunchStrength() != 0.f)
+		{
+			if (AHNKPlayerCharacter* PlayerCharacter = Cast<AHNKPlayerCharacter>(GetOwningActor()))
+			{
+				if (const FHitResult* HitResult = Data.EffectSpec.GetContext().GetHitResult())
+				{
+					FVector LaunchDir = (PlayerCharacter->GetActorLocation() - HitResult->ImpactPoint).GetSafeNormal();
+					PlayerCharacter->LaunchRagdoll(LaunchDir * GetLaunchStrength());
+				}
+				else
+				{
+					PlayerCharacter->LaunchRagdoll(FVector(0.f, 0.f, GetLaunchStrength()));
+				}
+			}
+			
+			SetLaunchStrength(0.f);
 		}
 	}
 }

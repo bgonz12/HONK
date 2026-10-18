@@ -4,7 +4,10 @@
 
 // HONK Includes
 #include "Gameplay/HNKGameplayStatics.h"
+#include "Gameplay/Interaction/HNKInteractionSourceComponent.h"
 #include "Inventory/HNKInventoryComponent.h"
+#include "Inventory/Equipment/HNKEquipmentComponent.h"
+#include "Player/HNKPlayerState.h"
 #include "Save/HNKSaveGame_Player.h"
 #include "Save/HNKSaveGameSubsystem.h"
 
@@ -12,8 +15,6 @@
 #include "Components/CapsuleComponent.h"
 #include "EnhancedInputComponent.h"
 #include "InputActionValue.h"
-#include "Gameplay/Interaction/HNKInteractionSourceComponent.h"
-#include "Inventory/Equipment/HNKEquipmentComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Net/UnrealNetwork.h"
@@ -110,6 +111,17 @@ void AHNKPlayerCharacter::ClearAnimationOverrides()
 	}
 }
 
+void AHNKPlayerCharacter::LaunchRagdoll(const FVector& InRagdollLaunchVelocity)
+{
+	bCanRecoverFromRagdoll = false;
+		
+	RagdollData.RagdollLaunchVelocity = InRagdollLaunchVelocity;
+	RagdollData.bIsInRagdoll = true;
+	OnRep_RagdollProperties(); // Call this for the server
+		
+	GetWorldTimerManager().SetTimer(RagdollRecoverTimerHandle, this, &AHNKPlayerCharacter::RagdollRecoverTimeEnd, 1.f);
+}
+
 bool AHNKPlayerCharacter::CanMove()
 {
 	return !RagdollData.bIsInRagdoll;
@@ -166,7 +178,7 @@ void AHNKPlayerCharacter::Input_JumpStarted(const FInputActionValue& Value)
 	{
 		if (RagdollData.bIsInRagdoll)
 		{
-			Server_StopRagdoll();
+			Server_TryStopRagdoll();
 		}
 		else
 		{
@@ -189,57 +201,79 @@ void AHNKPlayerCharacter::Input_Ragdoll(const FInputActionValue& Value)
 			FVector RagdollVelocity = MyCapsule->GetComponentVelocity();
 
 			Server_StartRagdoll(RagdollVelocity);
-			StartRagdoll(RagdollVelocity);
+			
+			if (!HasAuthority())
+			{
+				StartRagdoll(RagdollVelocity);
+			}
 		}
 	}
 }
 
 void AHNKPlayerCharacter::Server_StartRagdoll_Implementation(const FVector& InRagdollLaunchVelocity)
 {
-	if (!RagdollData.bIsInRagdoll)
-	{
-		BP_ScoreRagdollGag();
-		StartRagdoll(InRagdollLaunchVelocity);
-	}
+	UKismetSystemLibrary::PrintString(this, "RAGDOLL");
+	
+	StartRagdoll(InRagdollLaunchVelocity);
 }
 
 void AHNKPlayerCharacter::StartRagdoll(const FVector& InRagdollLaunchVelocity)
 {
 	if (!RagdollData.bIsInRagdoll)
 	{
-		RagdollData.bCanRecoverFromRagdoll = false;
+		if (HasAuthority())
+		{
+			TriggerRagdollGag();
+		}
 		
-		RagdollData.RagdollLaunchVelocity = InRagdollLaunchVelocity;
-		RagdollData.bIsInRagdoll = true;
-		OnRep_RagdollProperties(); // Call this for the server
-		
-		GetWorldTimerManager().SetTimer(RagdollRecoverTimerHandle, this, &AHNKPlayerCharacter::RagdollRecoverTimeEnd, 1.f);
+		LaunchRagdoll(InRagdollLaunchVelocity);
 	}
 }
 
-void AHNKPlayerCharacter::Server_StopRagdoll_Implementation()
+void AHNKPlayerCharacter::Server_TryStopRagdoll_Implementation()
 {
-	StopRagdoll();
+	TryStopRagdoll();
+}
+
+void AHNKPlayerCharacter::TryStopRagdoll()
+{
+	if (RagdollData.bIsInRagdoll && bCanRecoverFromRagdoll)
+	{
+		if (HasAuthority())
+		{
+			StopRagdoll();
+		}
+		else
+		{
+			Server_TryStopRagdoll();
+			StopRagdoll();
+		}
+	}
 }
 
 void AHNKPlayerCharacter::StopRagdoll()
 {
-	if (RagdollData.bIsInRagdoll && RagdollData.bCanRecoverFromRagdoll)
-	{
-		RagdollData.bIsInRagdoll = false;
-		RagdollData.RagdollLaunchVelocity = FVector::ZeroVector;
-		OnRep_RagdollProperties(); // Call this for the server
-	}
+	RagdollData.bIsInRagdoll = false;
+	RagdollData.RagdollLaunchVelocity = FVector::ZeroVector;
+	OnRep_RagdollProperties(); // Call this for the server
 }
 
 void AHNKPlayerCharacter::RagdollRecoverTimeEnd()
 {
-	RagdollData.bCanRecoverFromRagdoll = true;
+	bCanRecoverFromRagdoll = true;
 }
 
 void AHNKPlayerCharacter::OnRep_RagdollProperties()
 {
 	BP_RagdollPropertiesChanged();
+}
+
+void AHNKPlayerCharacter::TriggerRagdollGag()
+{
+	if (AHNKPlayerState* MyPlayerState = GetPlayerState<AHNKPlayerState>())
+	{
+		MyPlayerState->TryTriggerGag(RagdollGagData);
+	}
 }
 
 void AHNKPlayerCharacter::OnRep_AnimationOverrides()

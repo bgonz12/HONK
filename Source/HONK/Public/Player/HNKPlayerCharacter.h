@@ -15,6 +15,7 @@
 #include "HNKPlayerCharacter.generated.h"
 
 class UHNKEquipmentComponent;
+class UHNKGagDataAsset;
 class UHNKInteractionSourceComponent;
 class UHNKInventoryComponent;
 class UInputAction;
@@ -46,9 +47,6 @@ struct FHNKRagdollData
 public:
 	UPROPERTY(BlueprintReadWrite)
 	bool bIsInRagdoll = false;
-	
-	UPROPERTY(BlueprintReadWrite)
-	bool bCanRecoverFromRagdoll = false;
 	
 	UPROPERTY(BlueprintReadWrite)
 	FVector RagdollLaunchVelocity = FVector::ZeroVector;
@@ -86,6 +84,8 @@ public:
 	virtual void SetAnimationOverrides(const FHNKAnimationOverrides& InAnimationOverrides);
 	virtual void ClearAnimationOverrides();
 
+	void LaunchRagdoll(const FVector& InRagdollLaunchVelocity);
+	
 protected:
 	//~Begin APawn
 	virtual void PossessedBy(AController* NewController) override;
@@ -106,9 +106,11 @@ protected:
 	UFUNCTION(Server, Reliable)
 	void Server_StartRagdoll(const FVector& InRagdollLaunchVelocity);
 	void StartRagdoll(const FVector& InRagdollLaunchVelocity);
-
+	
 	UFUNCTION(Server, Reliable)
-	void Server_StopRagdoll();
+	void Server_TryStopRagdoll();
+	void TryStopRagdoll();
+
 	void StopRagdoll();
 
 	UFUNCTION()
@@ -120,8 +122,7 @@ protected:
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
 	void BP_RagdollPropertiesChanged();
 	
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
-	void BP_ScoreRagdollGag();
+	void TriggerRagdollGag();
 	
 	UFUNCTION(BlueprintImplementableEvent)
 	void BP_OnRep_AnimationOverrides();
@@ -178,17 +179,23 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input)
 	TObjectPtr<UInputAction> RagdollInputAction;
 	
-	UPROPERTY(ReplicatedUsing=OnRep_RagdollProperties, VisibleAnywhere, BlueprintReadWrite)
+	UPROPERTY(ReplicatedUsing=OnRep_RagdollProperties, VisibleAnywhere, BlueprintReadWrite, Category = "Ragdoll")
 	FHNKRagdollData RagdollData;
 	
+	UPROPERTY(Replicated, BlueprintReadWrite)
+	bool bCanRecoverFromRagdoll = false;
+	
 	FTimerHandle RagdollRecoverTimerHandle;
+	
+	UPROPERTY(EditAnywhere, Category = "Ragdoll")
+	TObjectPtr<UHNKGagDataAsset> RagdollGagData;
 	
 	UPROPERTY(ReplicatedUsing=OnRep_AnimationOverrides, Transient, VisibleAnywhere, BlueprintReadOnly)
 	FHNKAnimationOverrides AnimationOverrides;
 	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category=Cosmetics)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Cosmetics")
 	FHNKPlayerCosmeticsData DefaultPlayerCosmetics;
 	
-	UPROPERTY(ReplicatedUsing=OnRep_PlayerCosmetics, VisibleInstanceOnly, BlueprintReadOnly, Category=Cosmetics)
+	UPROPERTY(ReplicatedUsing=OnRep_PlayerCosmetics, VisibleInstanceOnly, BlueprintReadOnly, Category = "Cosmetics")
 	FHNKPlayerCosmeticsData PlayerCosmetics;
 };
