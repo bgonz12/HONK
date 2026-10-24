@@ -8,3 +8,8 @@ AHNKEquipmentAttachment::AHNKEquipmentAttachment()
 	PrimaryActorTick.bCanEverTick = true;
 }
 
+void AHNKEquipmentAttachment::GetProjectileSpawnTransform(FTransform& OutTransform)
+{
+	OutTransform = GetActorTransform();
+}
+

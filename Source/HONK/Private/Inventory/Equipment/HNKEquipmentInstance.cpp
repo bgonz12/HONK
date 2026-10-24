@@ -4,17 +4,31 @@
 #include "Inventory/Equipment/HNKEquipmentInstance.h"
 
 // HONK Includes
+#include "GAS/Abilities/HNKGameplayAbilitySet.h"
 #include "Inventory/Equipment/HNKEquipmentAttachment.h"
 #include "Inventory/Equipment/HNKEquipmentDefinition.h"
 #include "Inventory/Item/HNKItemInstance.h"
 #include "Inventory/ItemFragment/HNKItemFragment_Equippable.h"
+#include "Player/HNKPlayerCharacter.h"
 
 // Engine Includes
 #include "AbilitySystemComponent.h"
 #include "AbilitySystemInterface.h"
 #include "GameFramework/Character.h"
-#include "GAS/Abilities/HNKGameplayAbilitySet.h"
-#include "Player/HNKPlayerCharacter.h"
+#include "Net/UnrealNetwork.h"
+
+void UHNKEquipmentInstance::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	
+	DOREPLIFETIME(UHNKEquipmentInstance, EquipmentDef);
+	DOREPLIFETIME(UHNKEquipmentInstance, AttachmentActor);
+}
+
+bool UHNKEquipmentInstance::IsSupportedForNetworking() const
+{
+	return true;
+}
 
 void UHNKEquipmentInstance::Initialize(UHNKItemInstance* ItemInstance, ACharacter* Character)
 {
@@ -50,13 +64,13 @@ void UHNKEquipmentInstance::HandleEquipItem(ACharacter* Character)
 		return;
 	}
 	
-	EquipmentAttachmentActor = World->SpawnActor<AHNKEquipmentAttachment>(EquipmentDefCDO->EquipmentAttachmentClass);
-	if (!EquipmentAttachmentActor)
+	AttachmentActor = World->SpawnActor<AHNKEquipmentAttachment>(EquipmentDefCDO->EquipmentAttachmentClass);
+	if (!AttachmentActor)
 	{
 		return;
 	}
 	
-	EquipmentAttachmentActor->AttachToComponent(Character->GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, EquipmentDefCDO->AttachSocketName);
+	AttachmentActor->AttachToComponent(Character->GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, EquipmentDefCDO->AttachSocketName);
 	
 	if (EquipmentDefCDO->AnimationOverrides.IsValid())
 	{
@@ -82,10 +96,10 @@ void UHNKEquipmentInstance::HandleEquipItem(ACharacter* Character)
 
 void UHNKEquipmentInstance::HandleUnequipItem(ACharacter* Character)
 {
-	if (EquipmentAttachmentActor)
+	if (AttachmentActor)
 	{
-		EquipmentAttachmentActor->Destroy();
-		EquipmentAttachmentActor = nullptr;
+		AttachmentActor->Destroy();
+		AttachmentActor = nullptr;
 	}
 	
 	UHNKEquipmentDefinition* EquipmentDefCDO = EquipmentDef.GetDefaultObject();
@@ -104,6 +118,7 @@ void UHNKEquipmentInstance::HandleUnequipItem(ACharacter* Character)
 			}
 		}
 	}
+	
 	// Remove gameplay effects
 	
 	if (AHNKPlayerCharacter* PlayerCharacter = Cast<AHNKPlayerCharacter>(Character))

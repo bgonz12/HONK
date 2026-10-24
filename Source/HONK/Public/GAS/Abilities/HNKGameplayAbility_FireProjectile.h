@@ -28,8 +28,13 @@ protected:
 	
 	AHNKProjectile* SpawnProjectile(const FTransform& SpawnTransform);
 	
-	void GetSpawnTransform(FTransform& OutSpawnTransform) const;
-
+	void GetSpawnTransform(const FVector& InAimLocation, FTransform& OutSpawnTransform) const;
+	
+	UFUNCTION()
+	void TargetDataReady(const FGameplayAbilityTargetDataHandle& TargetDataHandle);
+	
+	UFUNCTION()
+	void TargetDataCancelled(const FGameplayAbilityTargetDataHandle& TargetDataHandle);
 	
 protected:
 	UPROPERTY(EditDefaultsOnly)

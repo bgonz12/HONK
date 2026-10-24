@@ -141,15 +141,12 @@ bool UHNKInventoryComponent::DropItem(int32 ItemIndex)
 	{
 		return false;
 	}
-		
-	if (IHNKEquipmentComponentInterface* ECI = Cast<IHNKEquipmentComponentInterface>(GetOwner()))
+	
+	if (UHNKEquipmentComponent* EquipmentComponent = UHNKInventoryStatics::GetEquipmentComponentFromActor(GetOwner()))
 	{
-		if (UHNKEquipmentComponent* EquipmentComponent = ECI->GetEquipmentComponent())
+		if (UHNKEquipmentInstance* EquipmentInstance = EquipmentComponent->FindEquipmentByItemInstance(Items[ItemIndex].ItemInstance))
 		{
-			if (UHNKEquipmentInstance* EquipmentInstance = EquipmentComponent->FindEquipmentByItemInstance(Items[ItemIndex].ItemInstance))
-			{
-				EquipmentComponent->UnequipItem(EquipmentInstance);
-			}
+			EquipmentComponent->UnequipItem(EquipmentInstance);
 		}
 	}
 	

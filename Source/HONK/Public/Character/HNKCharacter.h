@@ -27,9 +27,18 @@ public:
 	AHNKCharacter(const FObjectInitializer& ObjectInitializer);
 
 	//~Begin AActor
-	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 	//~End AActor
+	
+	//~Begin APawn
+	virtual void PossessedBy(AController* NewController) override;
+	virtual void OnRep_Controller() override;
+	//~End APawn
+	
+	//~Begin ACharacter
+	virtual void LaunchCharacter(FVector LaunchVelocity, bool bXYOverride, bool bZOverride) override;
+	virtual void Landed(const FHitResult& Hit) override;
+	//~End ACharacter
 	
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
@@ -40,21 +49,13 @@ public:
 	virtual void InitializeAbilitySystem();
 	virtual void InitializeAttributes();
 
-	//~Begin ACharacter
-	virtual void LaunchCharacter(FVector LaunchVelocity, bool bXYOverride, bool bZOverride) override;
-	virtual void Landed(const FHitResult& Hit) override;
-	//~End ACharacter
-
 	bool GetWasLaunched() const { return bWasLaunched; }
 	
 	UFUNCTION()
 	void GameplayCue_PlaySound(EGameplayCueEvent::Type EventType, const FGameplayCueParameters& Parameters);
 	
 protected:
-	virtual void PossessedBy(AController* NewController) override;
-	virtual void OnRep_PlayerState() override;
-	
-	virtual void HandlePlayerStateReady();
+	void HandleControllerReady();
 	
 	void AimingTagChanged(const FGameplayTag GameplayTag, int32 NewCount);
 	

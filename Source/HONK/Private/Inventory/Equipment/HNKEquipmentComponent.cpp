@@ -3,18 +3,29 @@
 #include "Inventory/Equipment/HNKEquipmentComponent.h"
 
 // HONK Includes
+#include "Inventory/Equipment/HNKEquipmentDefinition.h"
 #include "Inventory/Equipment/HNKEquipmentInstance.h"
+#include "Inventory/Item/HNKItemInstance.h"
+#include "Inventory/ItemFragment/HNKItemFragment_Equippable.h"
 
 // Engine Includes
 #include "GameFramework/Character.h"
 #include "GameplayTagContainer.h"
-#include "Inventory/Equipment/HNKEquipmentDefinition.h"
-#include "Inventory/Item/HNKItemInstance.h"
-#include "Inventory/ItemFragment/HNKItemFragment_Equippable.h"
+#include "Net/UnrealNetwork.h"
 
 UHNKEquipmentComponent::UHNKEquipmentComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
+	
+	SetIsReplicatedByDefault(true);
+	bReplicateUsingRegisteredSubObjectList = true;
+}
+
+void UHNKEquipmentComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	
+	DOREPLIFETIME(UHNKEquipmentComponent, EquippedItems);
 }
 
 void UHNKEquipmentComponent::EquipItem(UHNKItemInstance* ItemInstance)
@@ -61,6 +72,8 @@ void UHNKEquipmentComponent::EquipItem(UHNKItemInstance* ItemInstance)
 		return;
 	}
 	
+	AddReplicatedSubObject(EquipmentInstance);
+	
 	EquipmentInstance->Initialize(ItemInstance, OwnerCharacter);
 	EquippedItems.AddUnique(EquipmentInstance);
 }
@@ -96,6 +109,11 @@ UHNKEquipmentInstance* UHNKEquipmentComponent::FindEquipmentInSlot(const FGamepl
 {
 	for (UHNKEquipmentInstance* EquippedItem : EquippedItems)
 	{
+		if (!EquippedItem)
+		{
+			continue;
+		}
+		
 		if (const UHNKEquipmentDefinition* EquipmentDefCDO = EquippedItem->EquipmentDef.GetDefaultObject())
 		{
 			if (EquipmentDefCDO->SlotTag == SlotTag)

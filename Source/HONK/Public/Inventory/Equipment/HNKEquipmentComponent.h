@@ -22,6 +22,10 @@ class HONK_API UHNKEquipmentComponent : public UActorComponent
 public:
 	UHNKEquipmentComponent();
 	
+	//~Begin UObject
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+	//~End UObject
+
 	void EquipItem(UHNKItemInstance* ItemInstance);
 	
 	void UnequipItem(UHNKEquipmentInstance* EquipmentInstance);
@@ -33,6 +37,6 @@ public:
 	UHNKEquipmentInstance* FindEquipmentInSlot(const FGameplayTag& SlotTag);
 	
 protected:
-	UPROPERTY()
+	UPROPERTY(Replicated)
 	TArray<TObjectPtr<UHNKEquipmentInstance>> EquippedItems;
 };

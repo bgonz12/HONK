@@ -30,6 +30,8 @@ public:
 	
 	void ProjectileImpact(const FHitResult& Hit);
 	
+	USphereComponent* GetCollisionComponent() const;
+	
 protected:
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<USphereComponent> CollisionComponent;

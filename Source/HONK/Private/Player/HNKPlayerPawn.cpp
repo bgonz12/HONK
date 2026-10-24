@@ -227,7 +227,7 @@ void AHNKPlayerPawn::InitializeAbilitySystem()
 	UAbilitySystemComponent* ASC = GetAbilitySystemComponent();
 	if (IsValid(ASC))
 	{
-		ASC->InitAbilityActorInfo(this, this);
+		ASC->InitAbilityActorInfo(GetController(), this);
 		DamageableAttributeSet = ASC->GetSet<UHNKHealthAttributeSet>();
 	}
 }

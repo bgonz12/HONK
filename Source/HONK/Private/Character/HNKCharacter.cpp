@@ -1,18 +1,16 @@
-// HONK Includes
+
 #include "Character/HNKCharacter.h"
 
-// GAS Includes
-#include "AbilitySystemComponent.h"
+// HONK Includes
+#include "Character/HNKCharacterMovementComponent.h"
+#include "GAS/Attribute/HNKHealthAttributeSet.h"
+#include "GAS/HNKGameplayTags.h"
 
 // Engine Includes
-#include "Character/HNKCharacterMovementComponent.h"
+#include "AbilitySystemComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
-#include "GAS/HNKGameplayTags.h"
-#include "GAS/Attribute/HNKHealthAttributeSet.h"
 #include "Kismet/GameplayStatics.h"
-#include "Kismet/KismetSystemLibrary.h"
-#include "Player/HNKPlayerState.h"
 
 AHNKCharacter::AHNKCharacter(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer.SetDefaultSubobjectClass<UHNKCharacterMovementComponent>(ACharacter::CharacterMovementComponentName))
@@ -49,28 +47,9 @@ AHNKCharacter::AHNKCharacter(const FObjectInitializer& ObjectInitializer)
 	HealthAttributeSet = CreateDefaultSubobject<UHNKHealthAttributeSet>(TEXT("HealthAttributeSet"));
 }
 
-void AHNKCharacter::BeginPlay()
-{
-	Super::BeginPlay();
-	
-	if (HasAuthority())
-	{
-		InitializeAbilitySystem();
-		InitializeAttributes();
-	}
-	
-	UAbilitySystemComponent* ASC = GetAbilitySystemComponent();
-	if (ASC)
-	{
-		FOnGameplayEffectTagCountChanged& AimingTagChangedEvent = ASC->RegisterGameplayTagEvent(HNKGameplayTags::Ability_State_Aiming, EGameplayTagEventType::NewOrRemoved);
-		AimingTagChangedDelegateHandle = AimingTagChangedEvent.AddUObject(this, &AHNKCharacter::AimingTagChanged);
-	}
-}
-
 void AHNKCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
-	UAbilitySystemComponent* ASC = GetAbilitySystemComponent();
-	if (ASC)
+	if (UAbilitySystemComponent* ASC = GetAbilitySystemComponent())
 	{
 		FOnGameplayEffectTagCountChanged& AimingTagChangedEvent = ASC->RegisterGameplayTagEvent(HNKGameplayTags::Ability_State_Aiming, EGameplayTagEventType::NewOrRemoved);
 		AimingTagChangedDelegateHandle = AimingTagChangedEvent.AddUObject(this, &AHNKCharacter::AimingTagChanged);
@@ -91,10 +70,9 @@ UAbilitySystemComponent* AHNKCharacter::GetAbilitySystemComponent() const
 
 void AHNKCharacter::InitializeAbilitySystem()
 {
-	UAbilitySystemComponent* ASC = GetAbilitySystemComponent();
-	if (ASC)
+	if (UAbilitySystemComponent* ASC = GetAbilitySystemComponent())
 	{
-		ASC->InitAbilityActorInfo(this, this);
+		ASC->InitAbilityActorInfo(GetController(), this);
 		HealthAttributeSet = ASC->GetSet<UHNKHealthAttributeSet>();
 	}
 }
@@ -147,28 +125,30 @@ void AHNKCharacter::GameplayCue_PlaySound(EGameplayCueEvent::Type EventType, con
 	}
 }
 
+void AHNKCharacter::HandleControllerReady()
+{
+	if (UAbilitySystemComponent* ASC = GetAbilitySystemComponent())
+	{
+		FOnGameplayEffectTagCountChanged& AimingTagChangedEvent = ASC->RegisterGameplayTagEvent(HNKGameplayTags::Ability_State_Aiming, EGameplayTagEventType::NewOrRemoved);
+		AimingTagChangedDelegateHandle = AimingTagChangedEvent.AddUObject(this, &AHNKCharacter::AimingTagChanged);
+	}
+}
+
 void AHNKCharacter::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
 	
-	HandlePlayerStateReady();
+	InitializeAbilitySystem();
+	InitializeAttributes();
+	
+	HandleControllerReady(); // Call on server
 }
 
-void AHNKCharacter::OnRep_PlayerState()
+void AHNKCharacter::OnRep_Controller()
 {
-	Super::OnRep_PlayerState();
-
-	HandlePlayerStateReady();
-}
-
-void AHNKCharacter::HandlePlayerStateReady()
-{
-	if (HasAuthority())
-	{
-		if (AHNKPlayerState* MyPlayerState = GetPlayerState<AHNKPlayerState>())
-		{
-		}
-	}
+	Super::OnRep_Controller();
+	
+	HandleControllerReady(); // Call on client
 }
 
 void AHNKCharacter::AimingTagChanged(const FGameplayTag GameplayTag, int32 NewCount)

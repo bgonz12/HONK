@@ -14,7 +14,7 @@ AHNKProjectile::AHNKProjectile()
 	PrimaryActorTick.bCanEverTick = true;
 
 	CollisionComponent = CreateDefaultSubobject<USphereComponent>(FName("CollisionComponent"));
-	CollisionComponent->SetCollisionProfileName(FName("BlockAllDynamic"));
+	CollisionComponent->SetCollisionProfileName(FName("Projectile"));
 	CollisionComponent->InitSphereRadius(50.f);
 	SetRootComponent(CollisionComponent);
 	
@@ -38,4 +38,14 @@ void AHNKProjectile::ActorHit(AActor* SelfActor, AActor* OtherActor, FVector Nor
 
 void AHNKProjectile::ProjectileImpact(const FHitResult& Hit)
 {
+	FString HitActorName = Hit.GetActor() ? Hit.GetActor()->GetName() : TEXT("");
+	FString HitComponentName = Hit.GetComponent() ? Hit.GetComponent()->GetName() : TEXT("");
+	UE_LOG(LogTemp, Warning, TEXT("Projectile Impact: %s HitActor: %s HitComponent: %s"), *GetName(), *HitActorName, *HitComponentName);
+	
+	Destroy();
+}
+
+USphereComponent* AHNKProjectile::GetCollisionComponent() const
+{
+	return CollisionComponent;
 }

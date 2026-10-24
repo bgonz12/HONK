@@ -20,18 +20,23 @@ class HONK_API UHNKEquipmentInstance : public UObject
 	GENERATED_BODY()
 	
 public:
-	UPROPERTY(BlueprintReadOnly)
-	TSubclassOf<UHNKEquipmentDefinition> EquipmentDef;
-	
-	UPROPERTY(BlueprintReadOnly)
-	TObjectPtr<UHNKItemInstance> SourceItemInstance;
-	
-	UPROPERTY(BlueprintReadOnly)
-	TObjectPtr<AHNKEquipmentAttachment> EquipmentAttachmentActor;
+	//~Begin UObject
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+	virtual bool IsSupportedForNetworking() const override;
+	//~End UObject
 	
 	void Initialize(UHNKItemInstance* ItemInstance, ACharacter* Character);
 	
 	void HandleEquipItem(ACharacter* Character);
 	
 	void HandleUnequipItem(ACharacter* Character);
+	
+	UPROPERTY(Replicated, BlueprintReadOnly)
+	TSubclassOf<UHNKEquipmentDefinition> EquipmentDef;
+	
+	UPROPERTY(BlueprintReadOnly)
+	TObjectPtr<UHNKItemInstance> SourceItemInstance;
+	
+	UPROPERTY(Replicated, BlueprintReadOnly, Transient)
+	TObjectPtr<AHNKEquipmentAttachment> AttachmentActor;
 };

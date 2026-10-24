@@ -17,4 +17,6 @@ class HONK_API AHNKEquipmentAttachment : public AActor
 	
 public:	
 	AHNKEquipmentAttachment();
+	
+	void GetProjectileSpawnTransform(FTransform& OutTransform);
 };
