@@ -7,6 +7,7 @@
 #include "Gameplay/Interaction/HNKInteractionSourceComponent.h"
 #include "Inventory/HNKInventoryComponent.h"
 #include "Inventory/Equipment/HNKEquipmentComponent.h"
+#include "Inventory/Projectile/HNKProjectileFireComponent.h"
 #include "Player/HNKPlayerState.h"
 #include "Save/HNKSaveGame_Player.h"
 #include "Save/HNKSaveGameSubsystem.h"
@@ -29,6 +30,8 @@ AHNKPlayerCharacter::AHNKPlayerCharacter(const FObjectInitializer& ObjectInitial
 	InventoryComponent = CreateDefaultSubobject<UHNKInventoryComponent>(TEXT("InventoryComponent"));
 	
 	EquipmentComponent = CreateDefaultSubobject<UHNKEquipmentComponent>(TEXT("EquipmentComponent"));
+	
+	ProjectileFireComponent = CreateDefaultSubobject<UHNKProjectileFireComponent>(TEXT("ProjectileFireComponent"));
 }
 
 void AHNKPlayerCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const

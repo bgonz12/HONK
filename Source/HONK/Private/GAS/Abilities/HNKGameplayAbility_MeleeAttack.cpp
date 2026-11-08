@@ -16,6 +16,9 @@
 
 UHNKGameplayAbility_MeleeAttack::UHNKGameplayAbility_MeleeAttack()
 {
+	ReplicationPolicy = EGameplayAbilityReplicationPolicy::ReplicateYes;
+	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
+	NetExecutionPolicy = EGameplayAbilityNetExecutionPolicy::LocalPredicted;
 }
 
 bool UHNKGameplayAbility_MeleeAttack::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags, FGameplayTagContainer* OptionalRelevantTags) const
@@ -66,7 +69,8 @@ void UHNKGameplayAbility_MeleeAttack::ActivateAbility(const FGameplayAbilitySpec
 		}
 	}
 	
-	if (AHNKCharacter* OwningCharacter = Cast<AHNKCharacter>(GetOwningActorFromActorInfo()))
+	// Set up MeleeSweep tasks from gathered AttackWindows
+	if (AHNKCharacter* OwningCharacter = Cast<AHNKCharacter>(GetAvatarActorFromActorInfo()))
 	{
 		if (USkeletalMeshComponent* MeshComponent = OwningCharacter->GetMesh())
 		{
@@ -81,6 +85,7 @@ void UHNKGameplayAbility_MeleeAttack::ActivateAbility(const FGameplayAbilitySpec
 		}
 	}
 	
+	// Play montage
 	UAbilityTask_PlayMontageAndWait* MontageTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(this, NAME_None, Montage);
 	MontageTask->OnCompleted.AddDynamic(this, &UHNKGameplayAbility_MeleeAttack::HandleMontageCompleted);
 	MontageTask->OnCancelled.AddDynamic(this, &UHNKGameplayAbility_MeleeAttack::HandleMontageCancelledOrInterrupted);
@@ -126,16 +131,10 @@ void UHNKGameplayAbility_MeleeAttack::HandleMeleeSweepHit(const FHitResult& HitR
 		return;
 	}
 	
-	AHNKCharacter* OwnerCharacter = Cast<AHNKCharacter>(GetOwningActorFromActorInfo());
-	if (!OwnerCharacter)
+	AHNKCharacter* AvatarCharacter = Cast<AHNKCharacter>(GetAvatarActorFromActorInfo());
+	if (!AvatarCharacter)
 	{
 		return;
-	}
-	
-	AHNKPlayerState* OwnerPlayerState = nullptr;
-	if (OwnerCharacter)
-	{
-		OwnerPlayerState = OwnerCharacter->GetPlayerState<AHNKPlayerState>();
 	}
 	
 	AActor* Actor = HitResult.GetActor();
@@ -153,7 +152,7 @@ void UHNKGameplayAbility_MeleeAttack::HandleMeleeSweepHit(const FHitResult& HitR
 	// Adding this so the hit character is always launched away from the attacker.
 	// Might consider adding a checkbox for this.
 	FHitResult FakeHitResult = HitResult;
-	FakeHitResult.ImpactPoint = OwnerCharacter->GetActorLocation();
+	FakeHitResult.TraceStart = AvatarCharacter->GetActorLocation();
 	
 	FGameplayEffectContextHandle EffectContextHandle = MakeEffectContext(CurrentSpecHandle, CurrentActorInfo);
 	EffectContextHandle.AddHitResult(FakeHitResult);
@@ -163,6 +162,7 @@ void UHNKGameplayAbility_MeleeAttack::HandleMeleeSweepHit(const FHitResult& HitR
 		OwnerASC->ApplyGameplayEffectToTarget(EffectClass.GetDefaultObject(), TargetASC, UGameplayEffect::INVALID_LEVEL, EffectContextHandle);
 	}
 	
+	AHNKPlayerState* OwnerPlayerState = AvatarCharacter->GetPlayerState<AHNKPlayerState>();
 	if (IsValid(OwnerPlayerState))
 	{
 		OwnerPlayerState->TryTriggerGag(OwnerGagData);

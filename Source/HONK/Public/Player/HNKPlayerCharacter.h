@@ -14,6 +14,7 @@
 #include "Save/HNKSaveGame_Player.h"
 #include "HNKPlayerCharacter.generated.h"
 
+class UHNKProjectileFireComponent;
 class UHNKEquipmentComponent;
 class UHNKGagDataAsset;
 class UHNKInteractionSourceComponent;
@@ -85,6 +86,8 @@ public:
 	virtual void ClearAnimationOverrides();
 
 	void LaunchRagdoll(const FVector& InRagdollLaunchVelocity);
+	
+	UHNKProjectileFireComponent* GetProjectileFireComponent() const { return ProjectileFireComponent; }
 	
 protected:
 	//~Begin APawn
@@ -159,6 +162,9 @@ protected:
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TObjectPtr<UHNKEquipmentComponent> EquipmentComponent;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	TObjectPtr<UHNKProjectileFireComponent> ProjectileFireComponent;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category=Input)
 	TArray<FHNKAbilityInputBinding> AbilityInputBindings;

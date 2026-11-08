@@ -80,7 +80,7 @@ void UHNKHealthAttributeSet::PostGameplayEffectExecute(const struct FGameplayEff
 			{
 				if (const FHitResult* HitResult = Data.EffectSpec.GetContext().GetHitResult())
 				{
-					FVector LaunchDir = (PlayerCharacter->GetActorLocation() - HitResult->ImpactPoint).GetSafeNormal();
+					FVector LaunchDir = (PlayerCharacter->GetActorLocation() - HitResult->TraceStart).GetSafeNormal();
 					PlayerCharacter->LaunchRagdoll(LaunchDir * GetLaunchStrength());
 				}
 				else

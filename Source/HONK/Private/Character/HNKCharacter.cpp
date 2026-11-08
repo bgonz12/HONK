@@ -47,6 +47,17 @@ AHNKCharacter::AHNKCharacter(const FObjectInitializer& ObjectInitializer)
 	HealthAttributeSet = CreateDefaultSubobject<UHNKHealthAttributeSet>(TEXT("HealthAttributeSet"));
 }
 
+void AHNKCharacter::BeginPlay()
+{
+	Super::BeginPlay();
+	
+	// Caches AvatarActor for Autonomous and Simulated proxies on clients
+	if (UAbilitySystemComponent* ASC = GetAbilitySystemComponent())
+	{
+		ASC->InitAbilityActorInfo(this, this);
+	}
+}
+
 void AHNKCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
 	if (UAbilitySystemComponent* ASC = GetAbilitySystemComponent())

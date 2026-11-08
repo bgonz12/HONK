@@ -10,8 +10,10 @@
 // HONK Includes
 #include "HNKProjectile.generated.h"
 
-class USphereComponent;
+class UGameplayEffect;
+class UHNKGagDataAsset;
 class UProjectileMovementComponent;
+class USphereComponent;
 
 UCLASS()
 class HONK_API AHNKProjectile : public AActor
@@ -33,9 +35,21 @@ public:
 	USphereComponent* GetCollisionComponent() const;
 	
 protected:
+	void ApplyHitEffects(const FHitResult& HitResult);
+	
+protected:
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<USphereComponent> CollisionComponent;
 	
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<UProjectileMovementComponent> ProjectileMovementComponent;
+	
+	UPROPERTY(EditAnywhere)
+	TArray<TSubclassOf<UGameplayEffect>> HitEffects;
+	
+	UPROPERTY(EditAnywhere)
+	UHNKGagDataAsset* OwnerGagData;
+	
+	UPROPERTY(EditAnywhere)
+	UHNKGagDataAsset* TargetGagData;
 };

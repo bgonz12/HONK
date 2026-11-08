@@ -10,14 +10,12 @@
 #include "Inventory/Equipment/HNKEquipmentAttachment.h"
 #include "Inventory/Equipment/HNKEquipmentComponent.h"
 #include "Inventory/Equipment/HNKEquipmentInstance.h"
-#include "Inventory/Projectile/HNKProjectile.h"
 #include "Player/HNKPlayerCharacter.h"
 
 // Engine Includes
 #include "Abilities/GameplayAbilityTargetActor_SingleLineTrace.h"
 #include "Abilities/Tasks/AbilityTask_WaitTargetData.h"
-#include "Components/CapsuleComponent.h"
-#include "Components/SphereComponent.h"
+#include "Inventory/Projectile/HNKProjectileFireComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 
 UHNKGameplayAbility_FireProjectile::UHNKGameplayAbility_FireProjectile()
@@ -86,51 +84,6 @@ void UHNKGameplayAbility_FireProjectile::ActivateAbility(const FGameplayAbilityS
 	}
 }
 
-AHNKProjectile* UHNKGameplayAbility_FireProjectile::SpawnProjectile(const FTransform& SpawnTransform)
-{
-	if (!ProjectileClass)
-	{
-		return nullptr;
-	}
-	
-	UWorld* World = GetWorld();
-	if (!World)
-	{
-		return nullptr;
-	}
-	
-	AHNKPlayerCharacter* Instigator = Cast<AHNKPlayerCharacter>(GetAvatarActorFromActorInfo());
-	if (!Instigator)
-	{
-		return nullptr;
-	}
-	
-	AHNKProjectile* Projectile = World->SpawnActorDeferred<AHNKProjectile>(ProjectileClass, SpawnTransform, GetOwningActorFromActorInfo(), Instigator, ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
-	if (Projectile)
-	{
-		if (UCapsuleComponent* CapsuleComponent = Instigator->GetCapsuleComponent())
-		{
-			CapsuleComponent->IgnoreActorWhenMoving(Projectile, true);
-		}
-		
-		if (USphereComponent* CollisionComponent = Projectile->GetCollisionComponent())
-		{
-			CollisionComponent->IgnoreActorWhenMoving(Instigator, true);
-		}
-		
-		// Bad version of replication. Need to send RPC or gameplay cue to spawn dummy projectiles on remote clients
-		/*const FGameplayAbilityActivationInfo* ActivationInfo = &CurrentActivationInfo;
-		if (HasAuthority(ActivationInfo))
-		{
-			Projectile->SetReplicates(true);
-		}*/
-		
-		Projectile->FinishSpawning(SpawnTransform);
-	}
-	
-	return Projectile;
-}
-
 void UHNKGameplayAbility_FireProjectile::GetSpawnTransform(const FVector& InAimLocation, FTransform& OutSpawnTransform) const
 {
 	AHNKCharacter* OwnerCharacter = Cast<AHNKCharacter>(GetAvatarActorFromActorInfo());
@@ -161,13 +114,20 @@ void UHNKGameplayAbility_FireProjectile::TargetDataReady(const FGameplayAbilityT
 		FTransform SpawnTransform = TargetData->GetOrigin();
 		GetSpawnTransform(TargetData->GetEndPoint(), SpawnTransform);
 		
-		SpawnProjectile(SpawnTransform);
-		
-		// Need to spawn dummy projectile on remote clients
-		/*const FGameplayAbilityActivationInfo* ActivationInfo = &CurrentActivationInfo;
-		if (HasAuthority(ActivationInfo))
+		if (AHNKPlayerCharacter* PlayerCharacter = Cast<AHNKPlayerCharacter>(GetAvatarActorFromActorInfo()))
 		{
-		}*/
+			if (UHNKProjectileFireComponent* ProjectileFireComponent = PlayerCharacter->GetProjectileFireComponent())
+			{
+				if (PlayerCharacter->HasAuthority())
+				{
+					ProjectileFireComponent->Multicast_SpawnProjectile(ProjectileClass, SpawnTransform);
+				}
+				else
+				{
+					ProjectileFireComponent->SpawnProjectile(ProjectileClass, SpawnTransform);
+				}
+			}
+		}
 	}
 	
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
