@@ -34,6 +34,8 @@ public:
 	
 	USphereComponent* GetCollisionComponent() const;
 	
+	UProjectileMovementComponent* GetProjectileMovementComponent() const;
+	
 protected:
 	void ApplyHitEffects(const FHitResult& HitResult);
 	

@@ -15,7 +15,11 @@
 // Engine Includes
 #include "Abilities/GameplayAbilityTargetActor_SingleLineTrace.h"
 #include "Abilities/Tasks/AbilityTask_WaitTargetData.h"
+#include "Components/SphereComponent.h"
+#include "GameFramework/ProjectileMovementComponent.h"
+#include "Inventory/Projectile/HNKProjectile.h"
 #include "Inventory/Projectile/HNKProjectileFireComponent.h"
+#include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 
 UHNKGameplayAbility_FireProjectile::UHNKGameplayAbility_FireProjectile()
@@ -103,8 +107,35 @@ void UHNKGameplayAbility_FireProjectile::GetSpawnTransform(const FVector& InAimL
 		}
 	}
 	
-	FVector AimDir = (InAimLocation - OutSpawnTransform.GetLocation()).GetSafeNormal();
-	OutSpawnTransform.SetRotation(AimDir.ToOrientationQuat());
+	
+	if (AHNKProjectile* ProjectileCDO = ProjectileClass.GetDefaultObject())
+	{
+		UGameplayStatics::FSuggestProjectileVelocityParameters VelocityParams = UGameplayStatics::FSuggestProjectileVelocityParameters(this, OutSpawnTransform.GetLocation(), InAimLocation, ProjectileCDO->GetProjectileMovementComponent()->InitialSpeed);
+		VelocityParams.bFavorHighArc = false;
+		VelocityParams.TraceOption = ESuggestProjVelocityTraceOption::DoNotTrace;
+
+		if (USphereComponent* SphereComponent = ProjectileCDO->GetCollisionComponent())
+		{
+			VelocityParams.CollisionRadius = SphereComponent->GetScaledSphereRadius();
+		}
+		
+		if (UProjectileMovementComponent* ProjectileMove = ProjectileCDO->GetProjectileMovementComponent())
+		{
+			VelocityParams.OverrideGravityZ = ProjectileMove->GetGravityZ();
+		}
+		
+		FVector SuggestedVelocity;
+		if (UGameplayStatics::SuggestProjectileVelocity(VelocityParams, SuggestedVelocity))
+		{
+			FVector AimDir = SuggestedVelocity.GetSafeNormal();
+			OutSpawnTransform.SetRotation(AimDir.ToOrientationQuat());
+		}
+		else
+		{
+			FVector AimDir = (InAimLocation - OutSpawnTransform.GetLocation()).GetSafeNormal();
+			OutSpawnTransform.SetRotation(AimDir.ToOrientationQuat());
+		}
+	}
 }
 
 void UHNKGameplayAbility_FireProjectile::TargetDataReady(const FGameplayAbilityTargetDataHandle& TargetDataHandle)

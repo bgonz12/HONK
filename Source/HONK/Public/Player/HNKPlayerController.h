@@ -8,7 +8,7 @@
 // HONK Includes
 #include "HNKPlayerController.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FHNK_OnRep_Pawn_Signature, const AHNKPlayerController*, HNKPlayerController, const APawn*, Pawn);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FHNKPlayerDependenciesReady, const AHNKPlayerController*, HNKPlayerController);
 
 UCLASS()
 class HONK_API AHNKPlayerController : public APlayerController, public IAbilitySystemInterface
@@ -16,26 +16,43 @@ class HONK_API AHNKPlayerController : public APlayerController, public IAbilityS
 	GENERATED_BODY()
 	
 public:
-	/** IAbilitySystemInterface */
-	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
+	//~Begin AController
+	virtual void InitPlayerState() override;
+	virtual void OnPossess(APawn* InPawn) override;
+	virtual void OnUnPossess() override;
+	virtual void OnRep_Pawn() override;
+	virtual void OnRep_PlayerState() override;
+	//~End AController
 	
+	//~Begin APlayerController
 	virtual void BeginPlayingState() override;
-
+	//~End APlayerController
+	
+	//~Begin IAbilitySystemInterface
+	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
+	//~End IAbilitySystemInterface
+	
 	UFUNCTION(BlueprintImplementableEvent, Category = "HNKPlayerController")
 	void BP_BeginPlayingState();
-
-	virtual void OnRep_Pawn() override;
-	UFUNCTION(BlueprintImplementableEvent, Category = "HNKPlayerController|Pawn")
-	void BP_OnRep_Pawn();
-
-	virtual void OnRep_PlayerState() override;
-	UFUNCTION(BlueprintImplementableEvent, Category = "HNKPlayerController|Pawn")
-	void BP_OnRep_PlayerState();
-
+	
+	UFUNCTION(BlueprintImplementableEvent, Category = "HNKPlayerController")
+	void BP_HandlePlayerDependenciesReady();
+	
+	UFUNCTION(BlueprintPure)
+	bool ArePlayerDependenciesReady();
+	
 	UFUNCTION(Server, Reliable, BlueprintCallable, Category = "HNKPlayerController|Pawn")
 	void Server_ReadyUp();
 	
+protected:
+	virtual void TryHandlePlayerDependenciesReady();
+	
+	virtual void HandlePlayerDependenciesReady();
+	
 public:
 	UPROPERTY(BlueprintAssignable)
-	FHNK_OnRep_Pawn_Signature OnRep_Pawn_Delegate;
+	FHNKPlayerDependenciesReady OnPlayerDependenciesReady;
+	
+protected:
+	bool bPlayerDependenciesReady = false;
 };

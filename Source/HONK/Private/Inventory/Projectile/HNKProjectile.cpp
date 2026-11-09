@@ -24,6 +24,7 @@ AHNKProjectile::AHNKProjectile()
 	SetRootComponent(CollisionComponent);
 	
 	ProjectileMovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileMovementComponent"));
+	ProjectileMovementComponent->SetUpdatedComponent(CollisionComponent);
 	ProjectileMovementComponent->InitialSpeed = 2000.f;
 	ProjectileMovementComponent->MaxSpeed = 2000.f;
 	ProjectileMovementComponent->ProjectileGravityScale = 0.f;
@@ -57,6 +58,11 @@ void AHNKProjectile::ProjectileImpact(const FHitResult& Hit)
 USphereComponent* AHNKProjectile::GetCollisionComponent() const
 {
 	return CollisionComponent;
+}
+
+UProjectileMovementComponent* AHNKProjectile::GetProjectileMovementComponent() const
+{
+	return ProjectileMovementComponent;
 }
 
 void AHNKProjectile::ApplyHitEffects(const FHitResult& HitResult)
